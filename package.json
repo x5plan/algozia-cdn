@@ -1,0 +1,23 @@
+{
+  "name": "tywzoj-web-cdn",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "tsc && rollup -c",
+    "copy-packages": "node ./scripts/copy-packages.js",
+    "copy-assets": "node ./scripts/copy-assets.js",
+    "clean": "rimraf dist build"
+  },
+  "dependencies": {
+    "clipboard-polyfill": "^4.1.0",
+    "fomantic-ui": "^2.9.3",
+    "jquery": "^3.7.1",
+    "socket.io-client": "^4.8.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
+    "@types/jquery": "^3.5.30",
+    "prettier": "^3.3.3",
+    "rollup": "^4.22.4",
+    "typescript": "^5.6.2"
+  }
+}

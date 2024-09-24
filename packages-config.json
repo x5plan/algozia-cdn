@@ -1,0 +1,5 @@
+{
+    "semantic-ui": "fomantic-ui/dist",
+    "jquery": "jquery/dist",
+    "socket.io": "socket.io-client/dist"
+}
