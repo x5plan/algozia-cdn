@@ -20,7 +20,7 @@ function makeConfig(input, output) {
         output: {
             file: output,
             format: "cjs",
-            // plugins: [terser()],
+            plugins: [terser()],
         },
         plugins: [nodeResolve(), commonjs()],
     };
