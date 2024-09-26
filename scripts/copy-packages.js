@@ -1,4 +1,4 @@
-const packageConfig = require("../packages-config.json");
+const packageConfig = require("../configs/packages.json");
 const fs = require("fs");
 
 const src = "node_modules/";
