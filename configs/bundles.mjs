@@ -1,4 +1,4 @@
-const utils = ["hitokoto"];
+const utils = ["hitokoto", "markdown", "math"];
 const validations = ["auth-login", "auth-register"];
 
 /**

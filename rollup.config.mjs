@@ -1,4 +1,6 @@
 import terser from "@rollup/plugin-terser";
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 import modules from "./configs/modules.mjs";
 import bundles from "./configs/bundles.mjs";
 
@@ -18,7 +20,8 @@ function makeConfig(input, output) {
         output: {
             file: output,
             format: "cjs",
-            plugins: [terser()],
+            // plugins: [terser()],
         },
+        plugins: [nodeResolve(), commonjs()],
     };
 }

@@ -56,6 +56,3 @@ window.createHitokoto = function (target, types) {
         });
     });
 };
-
-// #hitokoto-content(style="font-size: 1em; line-height: 1.5em; display: none")
-// #hitokoto-from(style="text-align: right; margin-top: 15px; font-size: 0.9em; color: #666; display: none")
