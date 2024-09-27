@@ -74,13 +74,19 @@ namespace HighlightUtil {
         );
     }
 
-    export async function highlightCodeWithAutoLoadAsync(code: string, lang: string) {
+    export async function highlightCodeWithAutoLoadAsync(code: string, lang: string, target?: HTMLElement) {
         if (!checkDependencies()) {
             throw new Error("Missed Dependencies");
         }
 
         await loadPrismLanguagesAsync([lang]);
-        return highlightCode(code, lang);
+        const html = highlightCode(code, lang);
+
+        if (target) {
+            target.innerHTML = html;
+        }
+
+        return html;
     }
 }
 
