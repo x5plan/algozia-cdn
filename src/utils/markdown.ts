@@ -117,12 +117,14 @@ namespace MarkdownUtil {
     function highlightCode(code: string, lang: string) {
         code = code.replace(/\r\n/g, "\n");
         lang = lang.trim().toLowerCase();
-        if (lang) {
+        if (lang && window.Prism.languages[lang]) {
             try {
-                return h(code, [lang], lang);
+                return window.Prism.highlight(code, window.Prism.languages[lang], lang);
             } catch (e) {
                 console.error(`Failed to highlight, language = ${lang}`, e);
             }
+        } else {
+            console.warn(`Language not supported: ${lang}`);
         }
 
         return code
