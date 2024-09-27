@@ -1,49 +1,12 @@
 interface Window {
     markdownit: typeof import("markdown-it");
     markdownitMath: any;
-    renderSanitizedMarkdown: (content: string, element?: HTMLElement) => string;
+    MarkdownUtil: typeof MarkdownUtil;
+    HighlightUtil: typeof HighlightUtil;
 }
 
 namespace MarkdownUtil {
-    const DOMPurifyConfig = {
-        ALLOWED_TAGS: [
-            "a",
-            "b",
-            "i",
-            "u",
-            "em",
-            "strong",
-            "small",
-            "mark",
-            "abbr",
-            "code",
-            "pre",
-            "blockquote",
-            "ol",
-            "ul",
-            "li",
-            "br",
-            "p",
-            "hr",
-            "div",
-            "span",
-            "h1",
-            "h2",
-            "h3",
-            "h4",
-            "h5",
-            "h6",
-            "table",
-            "thead",
-            "tbody",
-            "tr",
-            "th",
-            "td",
-            "caption",
-            "img",
-        ],
-        ALLOWED_ATTR: ["href", "title", "alt", "src", "width", "height", "target", "md-data-id"],
-    };
+    const depsPromises: Promise<void>[] = [];
 
     export interface IHighlightPlaceholder {
         readonly id: string;
@@ -86,20 +49,20 @@ namespace MarkdownUtil {
 
     function checkDependencies() {
         let result = true;
+
         if (!window.markdownit) {
             console.error("MarkdownIt is not loaded.");
             result = false;
         }
 
-        if (!window.DOMPurify) {
-            console.error("DOMPurify is not loaded.");
+        if (!window.HighlightUtil) {
+            console.error("HighlightUtil is not loaded.");
+            result = false;
+        } else if (!window.HighlightUtil.checkDependencies()) {
             result = false;
         }
 
-        if (!window.Prism) {
-            console.error("highlightCode is not loaded.");
-            result = false;
-        }
+        // DOMPurify has been checked in HighlightUtil.checkDependencies()
 
         if (!window.katex) {
             console.error("KaTeX is not loaded.");
@@ -112,30 +75,6 @@ namespace MarkdownUtil {
         }
 
         return result;
-    }
-
-    function highlightCode(code: string, lang: string) {
-        code = code.replace(/\r\n/g, "\n");
-        lang = lang.trim().toLowerCase();
-        if (lang && window.Prism.languages[lang]) {
-            try {
-                return window.Prism.highlight(code, window.Prism.languages[lang], lang);
-            } catch (e) {
-                console.error(`Failed to highlight, language = ${lang}`, e);
-            }
-        } else {
-            console.warn(`Language not supported: ${lang}`);
-        }
-
-        return window.DOMPurify.sanitize(code, DOMPurifyConfig)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&apos;")
-            .replace(/\//g, "&sol;")
-            .replace(/\x20/g, "&nbsp;")
-            .replace(/\n/g, "<br>");
     }
 
     function renderMarkdown(content: string): IRenderedMarkdown {
@@ -151,8 +90,8 @@ namespace MarkdownUtil {
                 const id = randomUUID();
                 highlightPlaceholders.push({
                     id,
-                    code,
-                    lang,
+                    code: code.replace(/\r\n/g, "\n"),
+                    lang: lang.trim().toLowerCase(),
                 });
 
                 return `<pre><code>${generatePlaceholder(id)}</code></pre>`;
@@ -193,31 +132,53 @@ namespace MarkdownUtil {
         };
     }
 
-    window.renderSanitizedMarkdown = function (content, element) {
-        const target = element ?? document.createElement("div");
+    export async function renderSanitizedMarkdownAsync(content: string, target?: HTMLElement): Promise<string> {
+        const element = document.createElement("div");
+
+        await Promise.all(depsPromises);
 
         if (!checkDependencies()) {
-            return "";
+            throw new Error("Missed Dependencies");
         }
 
         const { html, highlightPlaceholders, mathPlaceholders } = renderMarkdown(content);
 
-        target.innerHTML = window.DOMPurify.sanitize(html, DOMPurifyConfig);
-        target.classList.add("markdown-content");
+        element.innerHTML = window.DOMPurify.sanitize(html, window.GlobalDOMPurifyConfig);
+        element.classList.add("markdown-content");
+
+        await window.HighlightUtil.loadPrismLanguagesAsync(highlightPlaceholders.map((x) => x.lang));
 
         highlightPlaceholders.forEach(({ id, code, lang }) => {
-            const element = getPlaceholderElement(target, id);
-            element.outerHTML = highlightCode(code, lang);
+            getPlaceholderElement(element, id).outerHTML = window.HighlightUtil.highlightCode(code, lang);
         });
 
         mathPlaceholders.forEach(({ id, math, display }) => {
-            const element = getPlaceholderElement(target, id);
-            window.katex.render(math, element, {
+            getPlaceholderElement(element, id).outerHTML = window.katex.renderToString(math, {
                 displayMode: display,
                 throwOnError: false,
             });
         });
 
-        return target.outerHTML;
-    };
+        if (target) {
+            target.appendChild(element);
+        }
+
+        return element.outerHTML;
+    }
+
+    export function registerDepsOnLoad() {
+        let onLoad: () => void = () => {};
+        let onError: (e: Error) => void = () => {};
+
+        const promise = new Promise<void>((res, rej) => {
+            onLoad = res;
+            onError = rej;
+        });
+
+        depsPromises.push(promise);
+
+        return [onLoad, onError];
+    }
 }
+
+window.MarkdownUtil = MarkdownUtil;
