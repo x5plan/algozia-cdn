@@ -1,18 +1,10 @@
 import terser from "@rollup/plugin-terser";
-import { nodeResolve } from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-import modules from "./configs/modules.mjs";
 import bundles from "./configs/bundles.mjs";
 
 const buildSrc = "build/";
 const bundleDist = "dist/bundle/";
-const moduelSrc = "node_modules/";
-const moduleDist = "dist/modules/";
 
-export default [
-    ...bundles.map(({ src, dist }) => makeConfig(`${buildSrc}${src}`, `${bundleDist}${dist}`)),
-    ...modules.map(({ src, dist }) => makeConfig(`${moduelSrc}${src}`, `${moduleDist}${dist}`)),
-];
+export default bundles.map(({ src, dist }) => makeConfig(`${buildSrc}${src}`, `${bundleDist}${dist}`));
 
 function makeConfig(input, output) {
     return {
@@ -20,8 +12,12 @@ function makeConfig(input, output) {
         output: {
             file: output,
             format: "cjs",
-            plugins: [terser()],
+            plugins: [
+                terser({
+                    module: true,
+                    keep_fnames: true,
+                }),
+            ],
         },
-        plugins: [nodeResolve(), commonjs()],
     };
 }
