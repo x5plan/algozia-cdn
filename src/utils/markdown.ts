@@ -70,7 +70,7 @@ namespace MarkdownUtil {
     }
 
     function getPlaceholderElement(wrapperElement: HTMLElement, id: string): HTMLSpanElement {
-        return document.querySelector(`span[md-data-id="${id}"]`) as HTMLSpanElement;
+        return wrapperElement.querySelector(`span[md-data-id="${id}"]`) as HTMLSpanElement;
     }
 
     function randomUUID() {
@@ -127,14 +127,14 @@ namespace MarkdownUtil {
             console.warn(`Language not supported: ${lang}`);
         }
 
-        return code
+        return window.DOMPurify.sanitize(code, DOMPurifyConfig)
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&apos;")
             .replace(/\//g, "&sol;")
-            .replace(/\x20/g, "$nbsp;")
+            .replace(/\x20/g, "&nbsp;")
             .replace(/\n/g, "<br>");
     }
 
@@ -194,7 +194,7 @@ namespace MarkdownUtil {
     }
 
     window.renderSanitizedMarkdown = function (content, element) {
-        const target = element || document.createElement("div");
+        const target = element ?? document.createElement("div");
 
         if (!checkDependencies()) {
             return "";
@@ -212,8 +212,9 @@ namespace MarkdownUtil {
 
         mathPlaceholders.forEach(({ id, math, display }) => {
             const element = getPlaceholderElement(target, id);
-            element.outerHTML = window.katex.renderToString(math, {
+            window.katex.render(math, element, {
                 displayMode: display,
+                throwOnError: false,
             });
         });
 
