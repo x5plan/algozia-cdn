@@ -12,12 +12,7 @@ function makeConfig(input, output) {
         output: {
             file: output,
             format: "cjs",
-            plugins: [
-                terser({
-                    module: true,
-                    keep_fnames: true,
-                }),
-            ],
+            plugins: [terser()],
         },
     };
 }
