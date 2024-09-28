@@ -1,2 +1,2 @@
-import "./href-post";
+import "./href";
 import "./dompurify-config";
