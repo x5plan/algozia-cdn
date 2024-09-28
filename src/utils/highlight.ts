@@ -56,7 +56,7 @@ namespace HighlightUtil {
             } catch (e) {
                 console.error(`Failed to highlight, language = ${lang}`, e);
             }
-        } else {
+        } else if (lang) {
             console.warn(`Language not supported: ${lang}`);
         }
 
