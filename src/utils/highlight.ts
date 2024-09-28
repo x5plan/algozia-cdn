@@ -29,7 +29,7 @@ namespace HighlightUtil {
             throw new Error("Missed Dependencies");
         }
 
-        const langs = languages.filter((x) => !loadedLanguages.has(x));
+        const langs = languages.filter((x) => !!x && !loadedLanguages.has(x));
 
         if (langs.length <= 0) {
             return Promise.resolve([]);
