@@ -132,7 +132,27 @@ namespace MarkdownUtil {
         };
     }
 
-    export async function renderSanitizedMarkdownAsync(content: string, target?: HTMLElement): Promise<string> {
+    export function patchUIStyles(element: HTMLElement) {
+        element.querySelectorAll("pre").forEach((pre) => {
+            pre.style.marginTop = "0";
+            pre.style.marginBottom = "0";
+            pre.outerHTML = `<div class="ui existing segment">${pre.outerHTML}</div>`;
+        });
+
+        element.querySelectorAll("table").forEach((table) => {
+            table.classList.add("ui", "structured", "celled", "table");
+        });
+
+        element.querySelectorAll("blockquote").forEach((blockquote) => {
+            blockquote.outerHTML = `<div class="ui message">${blockquote.innerHTML}</div>`;
+        });
+    }
+
+    export async function renderSanitizedMarkdownAsync(
+        content: string,
+        target?: HTMLElement,
+        patchUI = true,
+    ): Promise<string> {
         const element = document.createElement("div");
 
         await Promise.all(depsPromises);
@@ -158,6 +178,10 @@ namespace MarkdownUtil {
                 throwOnError: false,
             });
         });
+
+        if (patchUI) {
+            patchUIStyles(element);
+        }
 
         if (target) {
             target.appendChild(element);
