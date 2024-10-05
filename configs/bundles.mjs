@@ -1,5 +1,5 @@
 const utils = ["hitokoto", "markdown", "highlight"];
-const validations = ["auth-login", "auth-register"];
+const validations = ["auth-login", "auth-register", "problem-edit-judge"];
 
 /**
  * @type {{

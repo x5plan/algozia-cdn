@@ -1,6 +1,7 @@
 declare namespace FomanticUI {
     interface FormSettings {
         fields: Record<string, FormSettingsFieldItem>;
+        rules: Record<`custom_${string}`, (value: any, params?: any) => boolean>;
     }
 
     interface FormSettingsFieldItem {
@@ -74,5 +75,7 @@ declare namespace FomanticUI {
         | "exactCount"
         | `exactCount[${number}]`
         | "maxCount"
-        | `maxCount[${number}]`;
+        | `maxCount[${number}]`
+        // Custom
+        | `custom_${string}`;
 }

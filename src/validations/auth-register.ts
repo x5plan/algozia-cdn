@@ -32,6 +32,7 @@ $(() => {
                 ],
             },
             "password-confirm": {
+                identifier: "password-confirm",
                 rules: [
                     {
                         type: "match[password]",

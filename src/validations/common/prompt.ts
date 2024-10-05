@@ -10,4 +10,10 @@ export const enum CE_Prompt {
 
     // Register
     Register_PasswordConfirm = "两次输入的密码不一致",
+
+    // Problem
+    Problem_TimeLimit = "请输入合法时间限制",
+    Problem_MemoryLimit = "请输入合法内存限制",
+    Problem_InputFileName = "请输入合法输入文件名",
+    Problem_OutputFileName = "请输入合法输出文件名",
 }
