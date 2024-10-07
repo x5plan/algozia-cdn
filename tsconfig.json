@@ -1,17 +1,4 @@
 {
-  "compilerOptions": {
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "declaration": true,
-    "removeComments": false,
-    "target": "ES2021",
-    "sourceMap": true,
-    "outDir": "./build",
-    "rootDir": "./src",
-    "strict": true,
-    "lib": ["ESNext", "DOM"],
-    "noEmitOnError": true,
-    "allowSyntheticDefaultImports": true,
-  },
-  "exclude": ["node_modules", "dist", "build"]
+  "files": [],
+  "references": [{ "path": "./tsconfig.pages.json" }, { "path": "./tsconfig.vite.json" }]
 }

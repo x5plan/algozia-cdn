@@ -3,13 +3,17 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "build:all": "run-s clean copy-packages copy-assets copy-fonts build",
-    "build": "tsc && rollup -c",
-    "copy-packages": "node ./scripts/copy-packages.js",
-    "copy-assets": "node ./scripts/copy-assets.js",
-    "copy-fonts": "node ./scripts/copy-fonts.js",
-    "server": "node ./scripts/server.js",
-    "clean": "rimraf dist build"
+    "clean": "rimraf dist build",
+    "bundle:prod": "run-s clean copy:all build:all",
+    "build:scripts": "tsc -p ./scripts && rollup -c",
+    "build:pages": "tsc -b && vite build",
+    "build:all": "run-s build:scripts build:pages",
+    "copy:packages": "node ./build-tools/copy-packages.js",
+    "copy:assets": "node ./build-tools/copy-assets.js",
+    "copy:fonts": "node ./build-tools/copy-fonts.js",
+    "copy:all": "run-s copy:packages copy:assets copy:fonts",
+    "server:bundle": "node ./build-tools/server.js",
+    "server:pages": "vite dev"
   },
   "dependencies": {
     "@types/markdown-it": "^14.1.2",
@@ -21,11 +25,13 @@
     "markdown-it": "^14.1.0",
     "markdown-it-math-loose": "^4.1.1",
     "markdown-it-merge-cells": "^2.0.0",
+    "preact": "^10.24.2",
     "prismjs": "^1.29.0",
     "socket.io-client": "^4.8.0",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
+    "@preact/preset-vite": "^2.9.1",
     "@rollup/plugin-terser": "^0.4.4",
     "@types/dompurify": "^3.0.5",
     "@types/jquery": "^3.5.30",
@@ -37,6 +43,7 @@
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
     "rollup": "^4.22.4",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8"
   }
 }
