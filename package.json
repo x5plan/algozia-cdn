@@ -11,9 +11,9 @@
     "copy:packages": "node ./build-tools/copy-packages.js",
     "copy:assets": "node ./build-tools/copy-assets.js",
     "copy:fonts": "node ./build-tools/copy-fonts.js",
-    "copy:all": "run-s copy-packages copy-assets copy-fonts",
-    "server:cdn": "node ./build-tools/server.js",
-    "server:vite": "vite dev"
+    "copy:all": "run-s copy:packages copy:assets copy:fonts",
+    "server:bundle": "node ./build-tools/server.js",
+    "server:pages": "vite dev"
   },
   "dependencies": {
     "@types/markdown-it": "^14.1.2",
