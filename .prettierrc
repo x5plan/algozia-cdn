@@ -9,7 +9,9 @@
     "semi": true,
     "overrides": [
         {
-            "files": ["*.json"],
+            "files": [
+                "*.json"
+            ],
             "options": {
                 "tabWidth": 2
             }
