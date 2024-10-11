@@ -19,13 +19,13 @@ export function checkCodeFileExtension(language: E_CodeLanguage, filename: strin
     return codeLanguageExtensions[language].some((extension) => filename.toLowerCase().endsWith(extension));
 }
 
-export interface CodeLanguageOption {
+export interface ICodeLanguageOption {
     name: string;
     values: string[]; // string[] | undefined
     defaultValue: string; // string | boolean
 }
 
-export const compileAndRunOptions: Record<E_CodeLanguage, CodeLanguageOption[]> = {
+export const compileAndRunOptions: Record<E_CodeLanguage, ICodeLanguageOption[]> = {
     [E_CodeLanguage.Cpp]: [
         {
             name: "compiler",

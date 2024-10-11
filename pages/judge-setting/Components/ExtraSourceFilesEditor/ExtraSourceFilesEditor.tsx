@@ -1,16 +1,15 @@
-import type React from "react";
-import { useState } from "preact/compat";
-import { Dropdown, Menu, Popup, Button, Form, Input } from "semantic-ui-react";
 import update from "immutability-helper";
+import { useState } from "preact/compat";
+import type React from "react";
+import { Button, Dropdown, Form, Input, Menu, Popup } from "semantic-ui-react";
 import { v4 as uuid } from "uuid";
 
-import style from "./ExtraSourceFilesEditor.module.less";
-
-import { E_CodeLanguage } from "../../../shared/Enums";
-import { TestDataFileSelector } from "../TestDataFileSelector";
-import { IEditorComponentProps } from "../common.type";
 import { CodeLanguageString } from "../../../shared/CodeLanguageString";
-import { IJudgeInfoWithExtraSourceFiles } from "./ExtraSourceFilesEditor.type";
+import { E_CodeLanguage } from "../../../shared/Enums";
+import type { IEditorComponentProps } from "../common.type";
+import { TestDataFileSelector } from "../TestDataFileSelector";
+import style from "./ExtraSourceFilesEditor.module.less";
+import type { IJudgeInfoWithExtraSourceFiles } from "./ExtraSourceFilesEditor.type";
 
 export type IExtraSourceFilesEditorProps = IEditorComponentProps<IJudgeInfoWithExtraSourceFiles>;
 
@@ -35,7 +34,7 @@ export const ExtraSourceFilesEditor: React.FC<IExtraSourceFilesEditorProps> = (p
         ),
     );
 
-    function updateJudgeInfo(extraSourceFiles: ExtraSourceFiles, isNotByUser?: boolean) {
+    function updateJudgeInfo(extraSourceFiles: ExtraSourceFiles) {
         props.onUpdateJudgeInfo({
             extraSourceFiles: Object.fromEntries(
                 Object.values(E_CodeLanguage)

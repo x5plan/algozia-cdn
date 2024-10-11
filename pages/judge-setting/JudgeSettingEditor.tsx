@@ -1,11 +1,17 @@
-import React from "preact";
-import { useMemo, useState } from "preact/hooks";
 import { lazy, Suspense } from "preact/compat";
+import { useCallback, useMemo, useState } from "preact/hooks";
+import type React from "react";
 
-import { loadTraditionalProblemEditor } from "./Editors/LazyLoad";
 import { CE_ProblemType } from "../shared/Enums";
+import {
+    loadInteractionProblemEditor,
+    loadSubmitAnswerProblemEditor,
+    loadTraditionalProblemEditor,
+} from "./Editors/LazyLoad";
 
 const TraditionalProblemEditorLazy = lazy(loadTraditionalProblemEditor);
+const SubmitAnswerProblemEditorLazy = lazy(loadSubmitAnswerProblemEditor);
+const InteractionProblemEditorLazy = lazy(loadInteractionProblemEditor);
 
 export interface IProblemJudgeSettingsPageProps {
     problemType: CE_ProblemType;
@@ -16,20 +22,29 @@ export interface IProblemJudgeSettingsPageProps {
 }
 
 export const JudgeSettingsEditor: React.FunctionComponent<IProblemJudgeSettingsPageProps> = (props) => {
-    const { problemType, testData, rawJudgeInfo } = props;
-    const [pending, setPending] = useState(false);
+    const { problemType, testData, rawJudgeInfo, onJudgeInfoChange } = props;
+    const [pending] = useState(false);
 
     const ProblemTypeEditorComponentLazy = useMemo(() => {
         switch (problemType) {
             case CE_ProblemType.Traditional:
                 return TraditionalProblemEditorLazy;
             case CE_ProblemType.SubmitAnswer:
+                return SubmitAnswerProblemEditorLazy;
             case CE_ProblemType.Interaction:
+                return InteractionProblemEditorLazy;
 
             default:
                 return null;
         }
     }, [problemType]);
+
+    const onJudgeInfoUpdated = useCallback(
+        (judgeInfo: any) => {
+            onJudgeInfoChange(judgeInfo, "");
+        },
+        [onJudgeInfoChange],
+    );
 
     return (
         ProblemTypeEditorComponentLazy && (
@@ -38,7 +53,7 @@ export const JudgeSettingsEditor: React.FunctionComponent<IProblemJudgeSettingsP
                     testData={testData}
                     rawJudgeInfo={rawJudgeInfo}
                     pending={pending}
-                    onJudgeInfoUpdated={() => {}}
+                    onJudgeInfoUpdated={onJudgeInfoUpdated}
                 />
             </Suspense>
         )

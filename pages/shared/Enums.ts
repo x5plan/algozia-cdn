@@ -19,7 +19,7 @@ export enum E_CodeLanguage {
     FSharp = "fsharp",
 }
 
-export enum SubtaskScoringType {
+export enum E_SubtaskScoringType {
     Sum = "Sum",
     GroupMin = "GroupMin",
     GroupMul = "GroupMul",

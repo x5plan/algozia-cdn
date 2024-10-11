@@ -1,8 +1,9 @@
 import type React from "react";
-import { Dropdown, Form, Icon, FormSelectProps, DropdownProps, SemanticICONS, Popup } from "semantic-ui-react";
+import type { DropdownProps, FormSelectProps, SemanticICONS } from "semantic-ui-react";
+import { Dropdown, Form, Icon, Popup } from "semantic-ui-react";
 
-import style from "./TestDataFileSelector.module.less";
 import { getFileIcon } from "../../../shared/FileIcon";
+import style from "./TestDataFileSelector.module.less";
 
 export interface ITestDataFileSelectorProps {
     type: "FormSelect" | "ItemSearchDropdown";

@@ -13,7 +13,9 @@
     "copy:fonts": "node ./build-tools/copy-fonts.js",
     "copy:all": "run-s copy:packages copy:assets copy:fonts",
     "server:bundle": "node ./build-tools/server.js",
-    "server:pages": "vite dev"
+    "lint": "eslint \"pages/**/*.{js,cjs,mjs,ts,mts,tsx}\"",
+    "lint:fix": "eslint \"pages/**/*.{js,cjs,mjs,ts,mts,tsx}\" --fix",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.{js,cjs,mjs,ts,mts,tsx}\""
   },
   "dependencies": {
     "@types/markdown-it": "^14.1.2",
@@ -35,6 +37,9 @@
     "uuid": "^10.0.0"
   },
   "devDependencies": {
+    "@eslint/compat": "^1.2.0",
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.12.0",
     "@preact/preset-vite": "^2.9.1",
     "@rollup/plugin-terser": "^0.4.4",
     "@types/dompurify": "^3.0.5",
@@ -44,12 +49,27 @@
     "@types/lodash": "^4.17.10",
     "@types/prismjs": "^1.26.4",
     "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.8.1",
+    "@typescript-eslint/parser": "^8.8.1",
     "clean-css": "^5.3.3",
+    "eslint": "^9.12.0",
+    "eslint-config-preact": "^1.5.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.12",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "globals": "^15.11.0",
+    "less": "^4.2.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
     "rollup": "^4.22.4",
     "typescript": "^5.6.2",
-    "vite": "^5.4.8"
+    "vite": "^5.4.8",
+    "vite-plugin-html-minifier-terser": "^3.8.0"
+  },
+  "eslintConfig": {
+    "extends": "preact"
   }
 }

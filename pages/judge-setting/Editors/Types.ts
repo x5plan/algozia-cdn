@@ -1,4 +1,4 @@
-export interface IEditorComponentProps<JudgeInfo, Options = never> {
+export interface IEditorComponentProps<JudgeInfo> {
     rawJudgeInfo: any;
     pending: boolean;
     testData: string[];

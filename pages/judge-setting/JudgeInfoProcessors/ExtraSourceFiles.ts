@@ -1,6 +1,6 @@
 import { E_CodeLanguage } from "../../shared/Enums";
-import { IJudgeInfoWithExtraSourceFiles } from "../Components/ExtraSourceFilesEditor/ExtraSourceFilesEditor.type";
-import { IJudgeInfoProcessor } from "./Types";
+import type { IJudgeInfoWithExtraSourceFiles } from "../Components/ExtraSourceFilesEditor/ExtraSourceFilesEditor.type";
+import type { IJudgeInfoProcessor } from "./Types";
 
 export const ExtraSourceFilesJudgeInfoProcessor: IJudgeInfoProcessor<IJudgeInfoWithExtraSourceFiles> = {
     parseJudgeInfo(raw) {
@@ -18,10 +18,10 @@ export const ExtraSourceFilesJudgeInfoProcessor: IJudgeInfoProcessor<IJudgeInfoW
                               .map(([language, fileMap]) => [
                                   language,
                                   Object.fromEntries(
-                                      Object.entries(fileMap).filter(([dst, src]) => typeof src === "string"),
+                                      Object.entries(fileMap).filter(([, src]) => typeof src === "string"),
                                   ),
                               ])
-                              .filter(([language, fileMap]) => Object.keys(fileMap).length > 0),
+                              .filter(([, fileMap]) => Object.keys(fileMap).length > 0),
                       )
                     : null,
         };

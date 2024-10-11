@@ -1,10 +1,11 @@
 import React, { useRef } from "react";
 import { Form } from "semantic-ui-react";
-import { compileAndRunOptions, getDefaultCompileAndRunOptions } from "../../../shared/CodeLanguageUtils";
-import { E_CodeLanguage } from "../../../shared/Enums";
-import { CodeLanguageString } from "../../../shared/CodeLanguageString";
 
-interface CodeLanguageAndOptionsProps {
+import { CodeLanguageString } from "../../../shared/CodeLanguageString";
+import { compileAndRunOptions, getDefaultCompileAndRunOptions } from "../../../shared/CodeLanguageUtils";
+import type { E_CodeLanguage } from "../../../shared/Enums";
+
+interface ICodeLanguageAndOptionsProps {
     pending?: boolean;
     elementAfterLanguageSelect?: React.ReactNode;
     headerForLanguage?: string;
@@ -16,7 +17,7 @@ interface CodeLanguageAndOptionsProps {
     onUpdateCompileAndRunOptions: (newCompileAndRunOptions: Record<string, unknown>) => void;
 }
 
-export const CodeLanguageAndOptions: React.FC<CodeLanguageAndOptionsProps> = (props) => {
+export const CodeLanguageAndOptions: React.FC<ICodeLanguageAndOptionsProps> = (props) => {
     const compileAndRunOptionsBackup = useRef(new Map<E_CodeLanguage, Record<string, unknown>>()).current;
     function onSwitchLanguage(newLanguage: E_CodeLanguage) {
         const oldLanguage = props.language;

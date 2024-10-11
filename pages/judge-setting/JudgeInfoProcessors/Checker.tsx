@@ -1,5 +1,5 @@
 import { type IJudgeInfoWithChecker, parseCheckerConfig } from "../Components/CheckerEditor";
-import { IJudgeInfoProcessor } from "./Types";
+import type { IJudgeInfoProcessor } from "./Types";
 
 export const CheckerJudgeInfoProcessor: IJudgeInfoProcessor<IJudgeInfoWithChecker> = {
     parseJudgeInfo(raw, testData) {

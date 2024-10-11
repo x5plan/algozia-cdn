@@ -1,6 +1,7 @@
 import type React from "react";
-import { IJudgeInfoProcessor } from "./JudgeInfoProcessors/Types";
-import { IEditorComponentProps } from "./Editors/Types";
+
+import type { IEditorComponentProps } from "./Editors/Types";
+import type { IJudgeInfoProcessor } from "./JudgeInfoProcessors/Types";
 
 export type IOptions<TEditorComponentType> =
     TEditorComponentType extends React.FunctionComponent<{ options?: infer T }> ? T : never;

@@ -1,5 +1,5 @@
-import { IJudgeInfoWithMeta, IMetaEditorOptions } from "../Components/MetaEditor/MetaEditor.type";
-import { IJudgeInfoProcessor } from "./Types";
+import type { IJudgeInfoWithMeta, IMetaEditorOptions } from "../Components/MetaEditor/MetaEditor.type";
+import type { IJudgeInfoProcessor } from "./Types";
 
 export const MetaJudgeInfoProcessor: IJudgeInfoProcessor<IJudgeInfoWithMeta, IMetaEditorOptions> = {
     parseJudgeInfo(raw, testData, options) {

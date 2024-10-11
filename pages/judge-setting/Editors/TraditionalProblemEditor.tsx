@@ -1,23 +1,23 @@
-import React from "react";
-import { useCallback, useState } from "preact/hooks";
-
-import { MetaEditor, type IJudgeInfoWithMeta } from "../Components/MetaEditor";
-import { JudgeInfoWithSubtasks } from "../Components/SubtasksEditor";
-import { IOptions } from "../Types";
-import { IEditorComponentProps } from "./Types";
-import { MetaJudgeInfoProcessor } from "../JudgeInfoProcessors/Meta";
-import { IJudgeInfoProcessor } from "../JudgeInfoProcessors/Types";
-import { ExtraSourceFilesJudgeInfoProcessor } from "../JudgeInfoProcessors/ExtraSourceFiles";
-import { ExtraSourceFilesEditor, type IJudgeInfoWithExtraSourceFiles } from "../Components/ExtraSourceFilesEditor";
-import { SubtaskJudgeInfoProcessor } from "../JudgeInfoProcessors/Subtasks";
-import { SubtasksEditor } from "../Components/SubtasksEditor";
-import { CheckerEditor } from "../Components/CheckerEditor/CheckerEditor";
-import { IJudgeInfoWithChecker } from "../Components/CheckerEditor";
-import { CheckerJudgeInfoProcessor } from "../JudgeInfoProcessors/Checker";
 import { cloneDeep } from "lodash";
+import { useCallback, useState } from "preact/hooks";
+import React from "react";
+
+import type { IJudgeInfoWithChecker } from "../Components/CheckerEditor";
+import { CheckerEditor } from "../Components/CheckerEditor/CheckerEditor";
+import { ExtraSourceFilesEditor, type IJudgeInfoWithExtraSourceFiles } from "../Components/ExtraSourceFilesEditor";
+import { type IJudgeInfoWithMeta, MetaEditor } from "../Components/MetaEditor";
+import type { IJudgeInfoWithSubtasks } from "../Components/SubtasksEditor";
+import { SubtasksEditor } from "../Components/SubtasksEditor";
+import { CheckerJudgeInfoProcessor } from "../JudgeInfoProcessors/Checker";
+import { ExtraSourceFilesJudgeInfoProcessor } from "../JudgeInfoProcessors/ExtraSourceFiles";
+import { MetaJudgeInfoProcessor } from "../JudgeInfoProcessors/Meta";
+import { SubtaskJudgeInfoProcessor } from "../JudgeInfoProcessors/Subtasks";
+import type { IJudgeInfoProcessor } from "../JudgeInfoProcessors/Types";
+import type { IOptions } from "../Types";
+import type { IEditorComponentProps } from "./Types";
 
 type IJudgeInfoTraditional = IJudgeInfoWithMeta &
-    JudgeInfoWithSubtasks &
+    IJudgeInfoWithSubtasks &
     IJudgeInfoWithChecker &
     IJudgeInfoWithExtraSourceFiles;
 
@@ -78,7 +78,7 @@ export const TraditionalProblemEditor: React.FC<ITraditionalProblemEditorProps> 
                 return next;
             });
         },
-        [],
+        [onJudgeInfoUpdated],
     );
 
     return (

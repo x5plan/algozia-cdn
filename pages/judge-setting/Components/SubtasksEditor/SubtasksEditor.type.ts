@@ -1,6 +1,6 @@
-import { SubtaskScoringType } from "../../../shared/Enums";
+import type { E_SubtaskScoringType } from "../../../shared/Enums";
 
-export interface Testcase {
+export interface ITestcase {
     uuid: string;
     inputFile?: string;
     outputFile?: string;
@@ -9,23 +9,23 @@ export interface Testcase {
     memoryLimit?: number;
     points?: number;
 }
-export interface Subtask {
+export interface ISubtask {
     uuid: string;
     timeLimit?: number;
     memoryLimit?: number;
-    testcases: Testcase[];
-    scoringType: SubtaskScoringType;
+    testcases: ITestcase[];
+    scoringType: E_SubtaskScoringType;
     points?: number;
     dependencies: number[];
 }
 
-export interface JudgeInfoWithSubtasks {
+export interface IJudgeInfoWithSubtasks {
     timeLimit?: number;
     memoryLimit?: number;
-    subtasks?: Subtask[];
+    subtasks?: ISubtask[];
 }
 
-export interface SubtasksEditorOptions {
+export interface ISubtasksEditorOptions {
     // Some of the problem types doesn't have ALL testcase props
     enableTimeMemoryLimit: boolean;
     enableInputFile: boolean | "optional";

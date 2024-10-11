@@ -4,11 +4,9 @@ export function detectTestcasesByMatchingInputToOutput(testData: string[], outpu
         .map<[string, string, number[]]>((input) => [
             input,
             testData.find((file) =>
-                [".out", ".ans"]
-                    .map((ext) => input.filename.slice(0, -3).toLowerCase() + ext)
-                    .includes(file.toLowerCase()),
+                [".out", ".ans"].map((ext) => input.slice(0, -3).toLowerCase() + ext).includes(file.toLowerCase()),
             ),
-            (input.filename.match(/\d+/g) || []).map(Number),
+            (input.match(/\d+/g) || []).map(Number),
         ])
         .filter(([, outputFile]) => (outputOptional ? true : outputFile))
         .sort(([inputA, , numbersA], [inputB, , numbersB]) => {
@@ -16,14 +14,14 @@ export function detectTestcasesByMatchingInputToOutput(testData: string[], outpu
                 (i) => numbersA[i] !== numbersB[i],
             );
             return firstNonEqualIndex === -1
-                ? inputA.filename < inputB.filename
+                ? inputA < inputB
                     ? -1
                     : 1
                 : numbersA[firstNonEqualIndex] - numbersB[firstNonEqualIndex];
         })
         .map(([input, output]) => ({
-            inputFile: input.filename,
-            outputFile: output?.filename,
+            inputFile: input,
+            outputFile: output,
         }));
 }
 
@@ -32,8 +30,8 @@ export function detectTestcasesByMatchingOutputToInput(testData: string[], input
         .filter((file) => ((str: string) => str.endsWith(".out") || str.endsWith(".ans"))(file.toLowerCase()))
         .map<[string, string, number[]]>((input) => [
             input,
-            testData.find((file) => `${input.filename.slice(0, -4).toLowerCase()}.in` === file.toLowerCase()),
-            (input.filename.match(/\d+/g) || []).map(Number),
+            testData.find((file) => `${input.slice(0, -4).toLowerCase()}.in` === file.toLowerCase()),
+            (input.match(/\d+/g) || []).map(Number),
         ])
         .filter(([, inputFile]) => (inputOptional ? true : inputFile))
         .sort(([outputA, , numbersA], [outputB, , numbersB]) => {
@@ -41,13 +39,13 @@ export function detectTestcasesByMatchingOutputToInput(testData: string[], input
                 (i) => numbersA[i] !== numbersB[i],
             );
             return firstNonEqualIndex === -1
-                ? outputA.filename < outputB.filename
+                ? outputA < outputB
                     ? -1
                     : 1
                 : numbersA[firstNonEqualIndex] - numbersB[firstNonEqualIndex];
         })
         .map(([output, input]) => ({
-            inputFile: input?.filename,
-            outputFile: output.filename,
+            inputFile: input,
+            outputFile: output,
         }));
 }

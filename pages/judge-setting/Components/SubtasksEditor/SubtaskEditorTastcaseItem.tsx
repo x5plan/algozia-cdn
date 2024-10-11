@@ -1,27 +1,25 @@
-import type React from "react";
 import { useState } from "preact/hooks";
-
-import { Dropdown, Menu, Popup, Button, Input, Ref } from "semantic-ui-react";
-
-import style from "./SubtasksEditor.module.less";
+import type React from "react";
+import { Button, Dropdown, Input, Menu, Popup, Ref } from "semantic-ui-react";
 
 import { TestDataFileSelector } from "../TestDataFileSelector/TestDataFileSelector";
-import { SubtasksEditorOptions, Testcase } from "./SubtasksEditor.type";
+import style from "./SubtasksEditor.module.less";
+import type { ISubtasksEditorOptions, ITestcase } from "./SubtasksEditor.type";
 import { randomColorFromUuid } from "./SubtasksEditor.util";
 
 export interface ISubtaskEditorTestcaseItemProps {
-    options: SubtasksEditorOptions;
+    options: ISubtasksEditorOptions;
 
     testData: string[];
     testcaseIndex: number;
     testcaseCount: number;
-    testcase: Testcase;
+    testcase: ITestcase;
 
     defaultPercentagePoints: number;
     defaultTimeLimit: number;
     defaultMemoryLimit: number;
 
-    onUpdate: (updateInfo: Partial<Testcase>) => void;
+    onUpdate: (updateInfo: Partial<ITestcase>) => void;
     onDelete: () => void;
     onMoveUp: () => void;
     onMoveDown: () => void;

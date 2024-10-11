@@ -1,46 +1,45 @@
+import type { Spec } from "immutability-helper";
+import update from "immutability-helper";
+import { useMemo, useRef, useState } from "preact/hooks";
 import type React from "react";
-import { useState, useRef, useMemo } from "preact/hooks";
-
-import { Dropdown, Menu, Popup, Button, Form, Input, Ref, Table } from "semantic-ui-react";
+import { Button, Dropdown, Form, Input, Menu, Popup, Ref, Table } from "semantic-ui-react";
 import { v4 as uuid } from "uuid";
-import update, { Spec } from "immutability-helper";
 
-import style from "./SubtasksEditor.module.less";
-
-import { IEditorComponentProps } from "../common.type";
+import { E_SubtaskScoringType } from "../../../shared/Enums";
+import type { IEditorComponentProps } from "../common.type";
 import { detectTestcasesByMatchingInputToOutput, detectTestcasesByMatchingOutputToInput } from "../detect-testcases";
-import { JudgeInfoWithSubtasks, Subtask, SubtasksEditorOptions, Testcase } from "./SubtasksEditor.type";
-import { SubtaskScoringType } from "../../../shared/Enums";
 import { SubtaskEditorTastcaseItem } from "./SubtaskEditorTastcaseItem";
+import style from "./SubtasksEditor.module.less";
+import type { IJudgeInfoWithSubtasks, ISubtask, ISubtasksEditorOptions, ITestcase } from "./SubtasksEditor.type";
 import { randomColorFromUuid } from "./SubtasksEditor.util";
 
-export interface SubtaskEditorProps {
-    options: SubtasksEditorOptions;
+export interface ISubtaskEditorProps {
+    options: ISubtasksEditorOptions;
 
     testData: string[];
     subtaskIndex: number;
     subtaskCount: number;
-    subtask: Subtask;
+    subtask: ISubtask;
 
     defaultPercentagePoints: number;
     defaultTimeLimit: number;
     defaultMemoryLimit: number;
 
-    onUpdate: (updateInfo: Partial<Subtask>) => void;
+    onUpdate: (updateInfo: Partial<ISubtask>) => void;
     onDelete: () => void;
     onMoveUp: () => void;
     onMoveDown: () => void;
     onAddSubtaskBefore: () => void;
     onAddSubtaskAfter: () => void;
 
-    onUpdateTestcase: (testcaseIndex: number, updateInfo: Partial<Testcase>) => void;
+    onUpdateTestcase: (testcaseIndex: number, updateInfo: Partial<ITestcase>) => void;
     onDeleteTestcase: (testcaseIndex: number) => void;
     onMoveTestcaseUp: (testcaseIndex: number) => void;
     onMoveTestcaseDown: (testcaseIndex: number) => void;
     onAddTestcase: (testcaseIndex: number) => void;
 }
 
-export const SubtaskEditor: React.FC<SubtaskEditorProps> = (props) => {
+export const SubtaskEditor: React.FC<ISubtaskEditorProps> = (props) => {
     const [testcasesExpanded, setTestcasesExpanded] = useState(props.subtaskCount === 1);
 
     const refOptionsButton = useRef(null);
@@ -58,7 +57,7 @@ export const SubtaskEditor: React.FC<SubtaskEditorProps> = (props) => {
             : Math.round((100 - sumSpecfiedPercentagePoints) / countUnspecfiedPercentagePoints)) || 0;
 
     function sortTestcases() {
-        const temp: [number[], Testcase][] = props.subtask.testcases.map((testcase) => [
+        const temp: [number[], ITestcase][] = props.subtask.testcases.map((testcase) => [
             (testcase.inputFile || testcase.outputFile).match(/\d+/g).map(parseInt),
             testcase,
         ]);
@@ -69,7 +68,7 @@ export const SubtaskEditor: React.FC<SubtaskEditorProps> = (props) => {
         });
 
         props.onUpdate({
-            testcases: temp.map(([numbers, testcase]) => testcase),
+            testcases: temp.map(([, testcase]) => testcase),
         });
     }
 
@@ -89,7 +88,7 @@ export const SubtaskEditor: React.FC<SubtaskEditorProps> = (props) => {
                     <strong>
                         {props.subtaskCount === 1 ? "单个子任务" : <>子任务 &nbsp; #{props.subtaskIndex + 1}</>}
                     </strong>
-                    <div className={style.subtaskTitleTestcasesCount}>props.subtask.testcases.length</div>
+                    <div className={style.subtaskTitleTestcasesCount}>{props.subtask.testcases.length}</div>
                 </Menu.Item>
                 <Menu.Menu position="right">
                     {props.options.enableTimeMemoryLimit && (
@@ -191,17 +190,17 @@ export const SubtaskEditor: React.FC<SubtaskEditorProps> = (props) => {
                     item
                     value={props.subtask.scoringType}
                     className={style.itemScoringTypeDropdown}
-                    options={Object.values(SubtaskScoringType).map((type) => ({
+                    options={Object.values(E_SubtaskScoringType).map((type) => ({
                         key: type,
                         value: type,
                         text:
-                            type === SubtaskScoringType.Sum
+                            type === E_SubtaskScoringType.Sum
                                 ? "各测试点分数求和"
-                                : type === SubtaskScoringType.GroupMin
+                                : type === E_SubtaskScoringType.GroupMin
                                   ? "各测试点分数取最小值"
                                   : "各测试点分数按百分比相乘",
                     }))}
-                    onChange={(e, { value }) => props.onUpdate({ scoringType: value as SubtaskScoringType })}
+                    onChange={(e, { value }) => props.onUpdate({ scoringType: value as E_SubtaskScoringType })}
                 />
                 <Menu.Menu position="right">
                     {props.subtask.testcases.length === 0 ? (
@@ -267,7 +266,7 @@ export const SubtaskEditor: React.FC<SubtaskEditorProps> = (props) => {
     );
 };
 
-type SubtasksEditorProps = IEditorComponentProps<JudgeInfoWithSubtasks, SubtasksEditorOptions>;
+type SubtasksEditorProps = IEditorComponentProps<IJudgeInfoWithSubtasks, ISubtasksEditorOptions>;
 
 export const SubtasksEditor: React.FC<SubtasksEditorProps> = (props) => {
     const judgeInfo = props.judgeInfo;
@@ -276,14 +275,16 @@ export const SubtasksEditor: React.FC<SubtasksEditorProps> = (props) => {
         if (
             props.options.enableInputFile === true ||
             (props.options.enableInputFile === "optional" && props.options.enableOutputFile !== true)
-        )
+        ) {
             return detectTestcasesByMatchingInputToOutput(props.testData, props.options.enableOutputFile !== true);
-        else return detectTestcasesByMatchingOutputToInput(props.testData, true);
-    }, [props.testData]);
+        } else return detectTestcasesByMatchingOutputToInput(props.testData, true);
+    }, [props.options.enableInputFile, props.options.enableOutputFile, props.testData]);
 
     // Prevent losing subtasks by toggling "auto detect testcases"
     const [subtasksBackup, setSubtasksBackup] = useState(
-        judgeInfo.subtasks || [{ scoringType: SubtaskScoringType.Sum, testcases: [], uuid: uuid(), dependencies: [] }],
+        judgeInfo.subtasks || [
+            { scoringType: E_SubtaskScoringType.Sum, testcases: [], uuid: uuid(), dependencies: [] },
+        ],
     );
 
     // For manual subtask editor
@@ -299,11 +300,11 @@ export const SubtasksEditor: React.FC<SubtasksEditorProps> = (props) => {
             ? 0
             : Math.round((100 - sumSpecfiedPercentagePoints) / countUnspecfiedPercentagePoints)) || 0;
 
-    function updateSubtasks($spec: Spec<Subtask[]>) {
+    function updateSubtasks($spec: Spec<ISubtask[]>) {
         props.onUpdateJudgeInfo({ subtasks: update(judgeInfo.subtasks, $spec) });
     }
 
-    function onUpdateSubtask(subtaskIndex: number, updateInfo: Partial<Subtask>) {
+    function onUpdateSubtask(subtaskIndex: number, updateInfo: Partial<ISubtask>) {
         updateSubtasks({
             [subtaskIndex]: {
                 $merge: updateInfo,
@@ -311,7 +312,7 @@ export const SubtasksEditor: React.FC<SubtasksEditorProps> = (props) => {
         });
     }
 
-    function mapSubtaskDependencyIdReference(callback: (id: number) => number): (subtasks: Subtask[]) => Subtask[] {
+    function mapSubtaskDependencyIdReference(callback: (id: number) => number): (subtasks: ISubtask[]) => ISubtask[] {
         return (subtasks) =>
             subtasks.map((subtask) =>
                 Object.assign({}, subtask, {
@@ -327,7 +328,7 @@ export const SubtasksEditor: React.FC<SubtasksEditorProps> = (props) => {
                 $set: [
                     {
                         uuid: uuid(),
-                        scoringType: SubtaskScoringType.Sum,
+                        scoringType: E_SubtaskScoringType.Sum,
                         testcases: [],
                         dependencies: [],
                     },
@@ -364,7 +365,7 @@ export const SubtasksEditor: React.FC<SubtasksEditorProps> = (props) => {
     }
 
     // Add new subtask with the TL/ML/ST of the old
-    function onAddSubtask(subtaskIndex: number, template: Subtask) {
+    function onAddSubtask(subtaskIndex: number, template: ISubtask) {
         updateSubtasks({
             $splice: [
                 [
@@ -388,7 +389,7 @@ export const SubtasksEditor: React.FC<SubtasksEditorProps> = (props) => {
         });
     }
 
-    function onUpdateTestcase(subtaskIndex: number, testcaseIndex: number, updateInfo: Partial<Testcase>) {
+    function onUpdateTestcase(subtaskIndex: number, testcaseIndex: number, updateInfo: Partial<ITestcase>) {
         updateSubtasks({
             [subtaskIndex]: {
                 testcases: {

@@ -1,12 +1,11 @@
 import React, { useRef } from "react";
-import { Header, Menu, Form, Input, Segment } from "semantic-ui-react";
+import { Form, Header, Input, Menu, Segment } from "semantic-ui-react";
 
-import style from "./CheckerEditor.module.less";
-
+import type { IEditorComponentProps } from "../common.type";
 import { TestDataFileSelector } from "../TestDataFileSelector";
-import { IEditorComponentProps } from "../common.type";
-import { ICheckerType, ICheckerConfig, IJudgeInfoWithChecker } from "./CheckerEditor.type";
-import { parseCheckerConfig, CHECKER_TYPES, CUSTOM_CHECKER_INTERFACES } from "./CheckerEditor.util";
+import style from "./CheckerEditor.module.less";
+import type { ICheckerConfig, ICheckerType, IJudgeInfoWithChecker } from "./CheckerEditor.type";
+import { CHECKER_TYPES, CUSTOM_CHECKER_INTERFACES, parseCheckerConfig } from "./CheckerEditor.util";
 import { CodeLanguageAndOptions } from "./CodeLanguageAndOptions";
 
 export type ICheckerEditorProps = IEditorComponentProps<IJudgeInfoWithChecker>;

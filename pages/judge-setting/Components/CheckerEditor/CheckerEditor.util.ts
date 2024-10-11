@@ -1,21 +1,22 @@
-import { ICheckerType, ICheckerConfig } from "./CheckerEditor.type";
-import { E_CodeLanguage } from "../../../shared/Enums";
 import {
     checkCodeFileExtension,
     filterValidCompileAndRunOptions,
     getDefaultCompileAndRunOptions,
 } from "../../../shared/CodeLanguageUtils";
+import { E_CodeLanguage } from "../../../shared/Enums";
+import type { ICheckerConfig, ICheckerType } from "./CheckerEditor.type";
 
 export const CHECKER_TYPES: ICheckerType[] = ["integers", "floats", "lines", "binary", "custom"];
 export const CUSTOM_CHECKER_INTERFACES = ["testlib", "legacy", "lemon", "hustoj", "qduoj", "domjudge"];
 
 export function parseCheckerConfig(checker: Partial<ICheckerConfig>, testData: string[]): ICheckerConfig {
-    if (!checker || !CHECKER_TYPES.includes(checker.type))
+    if (!checker || !CHECKER_TYPES.includes(checker.type)) {
         return {
             // default
             type: "lines",
             caseSensitive: false,
         };
+    }
 
     switch (checker.type) {
         case "integers":

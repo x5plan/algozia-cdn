@@ -1,11 +1,10 @@
 import { v4 as uuid } from "uuid";
 
-import { SubtaskScoringType } from "../../shared/Enums";
-import { JudgeInfoWithSubtasks } from "../Components/SubtaskEditorTastcaseItem";
-import { SubtasksEditorOptions } from "../Components/SubtasksEditor";
-import { IJudgeInfoProcessor } from "./Types";
+import { E_SubtaskScoringType } from "../../shared/Enums";
+import type { IJudgeInfoWithSubtasks, ISubtasksEditorOptions } from "../Components/SubtasksEditor";
+import type { IJudgeInfoProcessor } from "./Types";
 
-export const SubtaskJudgeInfoProcessor: IJudgeInfoProcessor<JudgeInfoWithSubtasks, SubtasksEditorOptions> = {
+export const SubtaskJudgeInfoProcessor: IJudgeInfoProcessor<IJudgeInfoWithSubtasks, ISubtasksEditorOptions> = {
     parseJudgeInfo(raw, testData, options) {
         const subtaskCount = Array.isArray(raw.subtasks) ? raw.subtasks.length : 0;
         return {
@@ -16,9 +15,9 @@ export const SubtaskJudgeInfoProcessor: IJudgeInfoProcessor<JudgeInfoWithSubtask
                           .map((rawSubtask) => ({
                               uuid: uuid(),
                               scoringType:
-                                  rawSubtask.scoringType in SubtaskScoringType
+                                  rawSubtask.scoringType in E_SubtaskScoringType
                                       ? rawSubtask.scoringType
-                                      : SubtaskScoringType.Sum,
+                                      : E_SubtaskScoringType.Sum,
                               points:
                                   Number.isSafeInteger(rawSubtask.points) && raw.subtasks.length > 1
                                       ? rawSubtask.points
@@ -93,8 +92,9 @@ export const SubtaskJudgeInfoProcessor: IJudgeInfoProcessor<JudgeInfoWithSubtask
                     if (!options.enableOutputFile) delete testcase.outputFile;
                     else if (!testcase.outputFile) testcase.outputFile = null;
 
-                    if (!options.enableUserOutputFilename || !testcase.userOutputFilename)
+                    if (!options.enableUserOutputFilename || !testcase.userOutputFilename) {
                         delete testcase.userOutputFilename;
+                    }
                     if (!options.enableTimeMemoryLimit || testcase.timeLimit == null) delete testcase.timeLimit;
                     if (!options.enableTimeMemoryLimit || testcase.memoryLimit == null) delete testcase.memoryLimit;
                 }
