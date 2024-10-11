@@ -9,6 +9,7 @@ import {
     getDefaultCompileAndRunOptions,
 } from "../../shared/CodeLanguageUtils";
 import { E_CodeLanguage } from "../../shared/Enums";
+import style from "../Components/CheckerEditor/CheckerEditor.module.less";
 import { CodeLanguageAndOptions } from "../Components/CheckerEditor/CodeLanguageAndOptions";
 import type { IJudgeInfoWithExtraSourceFiles } from "../Components/ExtraSourceFilesEditor";
 import { ExtraSourceFilesEditor } from "../Components/ExtraSourceFilesEditor";
@@ -22,7 +23,6 @@ import { MetaJudgeInfoProcessor } from "../JudgeInfoProcessors/Meta";
 import { SubtaskJudgeInfoProcessor } from "../JudgeInfoProcessors/Subtasks";
 import type { IJudgeInfoProcessor } from "../JudgeInfoProcessors/Types";
 import type { IOptions } from "../Types";
-import style from "./InteractionProblemEditor.module.less";
 import type { IEditorComponentProps } from "./Types";
 
 interface IInteractorConfig {
