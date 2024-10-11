@@ -17,13 +17,13 @@ export interface IProblemJudgeSettingsPageProps {
     problemType: CE_ProblemType;
     testData: string[];
     rawJudgeInfo: any;
+    pending: boolean;
 
     onJudgeInfoChange: (judgeInfo: any, judgeInfoYaml: string) => void;
 }
 
 export const JudgeSettingsEditor: React.FunctionComponent<IProblemJudgeSettingsPageProps> = (props) => {
-    const { problemType, testData, rawJudgeInfo, onJudgeInfoChange } = props;
-    const [pending] = useState(false);
+    const { problemType, testData, rawJudgeInfo, pending, onJudgeInfoChange } = props;
 
     const ProblemTypeEditorComponentLazy = useMemo(() => {
         switch (problemType) {

@@ -58,7 +58,7 @@ export default [
                     jsx: true,
                 },
 
-                project: "tsconfig.json",
+                project: "tsconfig.pages.json",
 
                 tsconfigRootDir: __dirname,
             },
