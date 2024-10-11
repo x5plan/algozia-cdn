@@ -1,120 +1,27 @@
 import React, { useRef } from "react";
 import { Header, Menu, Form, Input, Segment } from "semantic-ui-react";
-import { observer } from "mobx-react";
 
 import style from "./CheckerEditor.module.less";
 
-import { useLocalizer } from "@/utils/hooks";
-import {
-    CodeLanguage,
-    filterValidCompileAndRunOptions,
-    getPreferredCompileAndRunOptions,
-    checkCodeFileExtension,
-    compileAndRunOptions,
-    CodeLanguageOptionType,
-} from "@/interfaces/CodeLanguage";
-import TestDataFileSelector from "./TestDataFileSelector";
-import { JudgeInfoProcessor, EditorComponentProps } from "./Types";
-import CodeLanguageAndOptions from "@/components/CodeLanguageAndOptions";
+import { TestDataFileSelector } from "../TestDataFileSelector";
+import { IEditorComponentProps } from "../common.type";
+import { ICheckerType, ICheckerConfig, IJudgeInfoWithChecker } from "./CheckerEditor.type";
+import { parseCheckerConfig, CHECKER_TYPES, CUSTOM_CHECKER_INTERFACES } from "./CheckerEditor.util";
+import { CodeLanguageAndOptions } from "./CodeLanguageAndOptions";
 
-interface CheckerTypeIntegers {
-    type: "integers";
-}
+export type ICheckerEditorProps = IEditorComponentProps<IJudgeInfoWithChecker>;
 
-interface CheckerTypeFloats {
-    type: "floats";
-    precision: number;
-}
-
-interface CheckerTypeLines {
-    type: "lines";
-    caseSensitive: boolean;
-}
-
-interface CheckerTypeBinary {
-    type: "binary";
-}
-
-interface CheckerTypeCustom {
-    type: "custom";
-    interface: string;
-    language: CodeLanguage;
-    compileAndRunOptions: Record<string, unknown>;
-    filename: string;
-    timeLimit?: number;
-    memoryLimit?: number;
-}
-
-type CheckerConfig = CheckerTypeIntegers | CheckerTypeFloats | CheckerTypeLines | CheckerTypeBinary | CheckerTypeCustom;
-type CheckerType = CheckerConfig["type"];
-
-const CHECKER_TYPES: CheckerType[] = ["integers", "floats", "lines", "binary", "custom"];
-const CUSTOM_CHECKER_INTERFACES = ["testlib", "legacy", "lemon", "hustoj", "qduoj", "domjudge"];
-
-function parseCheckerConfig(checker: Partial<CheckerConfig>, testData: string[]): CheckerConfig {
-    if (!checker || !CHECKER_TYPES.includes(checker.type))
-        return {
-            // default
-            type: "lines",
-            caseSensitive: false,
-        };
-
-    switch (checker.type) {
-        case "integers":
-            return { type: "integers" };
-        case "floats":
-            return {
-                type: "floats",
-                precision: Number.isSafeInteger(checker.precision) && checker.precision > 0 ? checker.precision : 4,
-            };
-        case "lines":
-            return { type: "lines", caseSensitive: !!checker.caseSensitive };
-        case "binary":
-            return { type: "binary" };
-        case "custom":
-            const language = Object.values(CodeLanguage).includes(checker.language)
-                ? checker.language
-                : Object.values(CodeLanguage)[0];
-            return {
-                type: "custom",
-                interface: CUSTOM_CHECKER_INTERFACES.includes(checker.interface)
-                    ? checker.interface
-                    : CUSTOM_CHECKER_INTERFACES[0],
-                language: language,
-                compileAndRunOptions:
-                    language === checker.language
-                        ? filterValidCompileAndRunOptions(language, checker.compileAndRunOptions)
-                        : getPreferredCompileAndRunOptions(language),
-                filename:
-                    checker.filename && typeof checker.filename === "string"
-                        ? checker.filename
-                        : (testData.find((file) => checkCodeFileExtension(language, file)) || testData[0] || {})
-                              .filename || "",
-                timeLimit: Number.isSafeInteger(checker.timeLimit) ? checker.timeLimit : null,
-                memoryLimit: Number.isSafeInteger(checker.memoryLimit) ? checker.memoryLimit : null,
-            };
-    }
-}
-
-export interface JudgeInfoWithChecker {
-    checker?: CheckerConfig;
-}
-
-type CheckerEditorProps = EditorComponentProps<JudgeInfoWithChecker>;
-
-let CheckerEditor: React.FC<CheckerEditorProps> = (props) => {
-    const _ = useLocalizer("problem_judge_settings");
-
+export const CheckerEditor: React.FC<ICheckerEditorProps> = (props) => {
     const checker = props.judgeInfo.checker;
 
-    function onUpdateChecker(delta: Partial<CheckerConfig>) {
+    function onUpdateChecker(delta: Partial<ICheckerConfig>) {
         props.onUpdateJudgeInfo(({ checker }) => ({
             checker: Object.assign({}, checker, delta),
         }));
     }
 
-    const checkerConfigBackup = useRef<Map<CheckerType, CheckerConfig>>(new Map()).current;
-    function onChangeCheckerType(type: CheckerType) {
+    const checkerConfigBackup = useRef<Map<ICheckerType, ICheckerConfig>>(new Map()).current;
+    function onChangeCheckerType(type: ICheckerType) {
         if (props.pending) return;
 
         if (type === checker.type) return;
@@ -128,12 +35,20 @@ let CheckerEditor: React.FC<CheckerEditorProps> = (props) => {
     return (
         <Form className={style.wrapper}>
             <div className={style.menuWrapper}>
-                <Header size="tiny" content={_(".checker.checker")} />
+                <Header size="tiny" content="检查器" />
                 <Menu secondary pointing>
                     {CHECKER_TYPES.map((type) => (
                         <Menu.Item
                             key={type}
-                            content={_(`.checker.types.${type}`)}
+                            content={
+                                {
+                                    integers: "整数",
+                                    floats: "浮点数",
+                                    lines: "行比较",
+                                    binary: "二进制比较",
+                                    custom: "自定义",
+                                }[type]
+                            }
                             active={checker.type === type}
                             onClick={() => checker.type !== type && onChangeCheckerType(type)}
                         />
@@ -149,7 +64,7 @@ let CheckerEditor: React.FC<CheckerEditorProps> = (props) => {
                             return (
                                 <>
                                     <Form.Field width={8}>
-                                        <label>{_(`.checker.config.floats.precision`)}</label>
+                                        <label>误差位数</label>
                                         <Input
                                             value={checker.precision}
                                             onChange={(e, { value }) =>
@@ -160,9 +75,8 @@ let CheckerEditor: React.FC<CheckerEditorProps> = (props) => {
                                         />
                                     </Form.Field>
                                     <div className={style.description}>
-                                        {_(".checker.config.floats.description", {
-                                            value: `1e-${checker.precision}`,
-                                        })}
+                                        若用户输出的结果与正确答案的绝对误差或相对误差不超过 1e-{checker.precision}{" "}
+                                        则视为正确。
                                     </div>
                                 </>
                             );
@@ -171,11 +85,11 @@ let CheckerEditor: React.FC<CheckerEditorProps> = (props) => {
                                 <>
                                     <Form.Checkbox
                                         toggle
-                                        label={_(`.checker.config.lines.case_sensitive`)}
+                                        label="区分大小写"
                                         checked={checker.caseSensitive}
                                         onChange={(e, { checked }) => onUpdateChecker({ caseSensitive: checked })}
                                     />
-                                    <div className={style.description}>{_(".checker.config.lines.description")}</div>
+                                    <div className={style.description}>行末的空白字符与文末的空白行将被忽略。</div>
                                 </>
                             );
                         case "binary":
@@ -185,20 +99,27 @@ let CheckerEditor: React.FC<CheckerEditorProps> = (props) => {
                                 <div className={style.custom}>
                                     <TestDataFileSelector
                                         type="FormSelect"
-                                        label={_(".checker.config.custom.filename")}
-                                        placeholder={_(".checker.config.custom.filename_no_file")}
+                                        label="文件"
+                                        placeholder="无文件"
                                         value={checker.filename}
                                         testData={props.testData}
                                         onChange={(value) => onUpdateChecker({ filename: value })}
                                     />
                                     <div className={style.compileAndRunOptions}>
                                         <Form.Select
-                                            label={_(".checker.config.custom.interface")}
+                                            label="接口"
                                             value={checker.interface}
                                             options={CUSTOM_CHECKER_INTERFACES.map((iface) => ({
                                                 key: iface,
                                                 value: iface,
-                                                text: _(`.checker.config.custom.interfaces.${iface}`),
+                                                text: {
+                                                    testlib: "Testlib",
+                                                    legacy: "SYZOJ 2",
+                                                    lemon: "Lemon",
+                                                    hustoj: "HustOJ",
+                                                    qduoj: "QDUOJ",
+                                                    domjudge: "DOMjudge",
+                                                }[iface]!,
                                             }))}
                                             onChange={(e, { value }) => onUpdateChecker({ interface: value as any })}
                                         />
@@ -215,10 +136,10 @@ let CheckerEditor: React.FC<CheckerEditorProps> = (props) => {
                                     </div>
                                     <Form.Group>
                                         <Form.Field width={8}>
-                                            <label>{_(".meta.time_limit")}</label>
+                                            <label>时间限制</label>
                                             <Input
                                                 className={style.labeledInput}
-                                                placeholder={props.judgeInfo["timeLimit"] ?? _(".meta.time_limit")}
+                                                placeholder={props.judgeInfo["timeLimit"] ?? "时间限制"}
                                                 value={checker.timeLimit == null ? "" : checker.timeLimit}
                                                 label="ms"
                                                 labelPosition="right"
@@ -232,10 +153,10 @@ let CheckerEditor: React.FC<CheckerEditorProps> = (props) => {
                                             />
                                         </Form.Field>
                                         <Form.Field width={8}>
-                                            <label>{_(".meta.memory_limit")}</label>
+                                            <label>内存限制</label>
                                             <Input
                                                 className={style.labeledInput}
-                                                placeholder={props.judgeInfo["memoryLimit"] ?? _(".meta.memory_limit")}
+                                                placeholder={props.judgeInfo["memoryLimit"] ?? "内存限制"}
                                                 value={checker.memoryLimit == null ? "" : checker.memoryLimit}
                                                 label="MiB"
                                                 labelPosition="right"
@@ -259,19 +180,3 @@ let CheckerEditor: React.FC<CheckerEditorProps> = (props) => {
         </Form>
     );
 };
-
-const judgeInfoProcessor: JudgeInfoProcessor<JudgeInfoWithChecker> = {
-    parseJudgeInfo(raw, testData) {
-        return {
-            checker: parseCheckerConfig(raw.checker, testData),
-        };
-    },
-    normalizeJudgeInfo(judgeInfo) {
-        if (judgeInfo.checker.type === "custom") {
-            if (judgeInfo.checker.timeLimit == null) delete judgeInfo.checker.timeLimit;
-            if (judgeInfo.checker.memoryLimit == null) delete judgeInfo.checker.memoryLimit;
-        }
-    },
-};
-
-export default Object.assign(CheckerEditor, judgeInfoProcessor);

@@ -1,10 +1,10 @@
-import React from "react";
+import type React from "react";
 import { Dropdown, Form, Icon, FormSelectProps, DropdownProps, SemanticICONS, Popup } from "semantic-ui-react";
 
 import style from "./TestDataFileSelector.module.less";
-import { getFileIcon } from "../../shared/FileIcon";
+import { getFileIcon } from "../../../shared/FileIcon";
 
-interface TestDataFileSelectorProps {
+export interface ITestDataFileSelectorProps {
     type: "FormSelect" | "ItemSearchDropdown";
     className?: string;
     iconInputOrOutput?: SemanticICONS;
@@ -16,7 +16,7 @@ interface TestDataFileSelectorProps {
     onChange: (value: string) => void;
 }
 
-const TestDataFileSelector: React.FC<TestDataFileSelectorProps> = (props) => {
+export const TestDataFileSelector: React.FC<ITestDataFileSelectorProps> = (props) => {
     const uiProps: FormSelectProps | DropdownProps = {
         className:
             style.fileSelect +
@@ -86,5 +86,3 @@ const TestDataFileSelector: React.FC<TestDataFileSelectorProps> = (props) => {
         <Form.Select open={props.testData.length === 0 ? false : undefined} {...(uiProps as FormSelectProps)} />
     );
 };
-
-export default TestDataFileSelector;

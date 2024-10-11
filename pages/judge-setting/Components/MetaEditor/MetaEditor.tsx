@@ -3,28 +3,12 @@ import { Form, Input } from "semantic-ui-react";
 
 import style from "./MetaEditor.module.less";
 
-import { JudgeInfoProcessor, EditorComponentProps } from "./Types";
+import { IEditorComponentProps } from "../common.type";
+import { IJudgeInfoWithMeta, IMetaEditorOptions } from "./MetaEditor.type";
 
-export interface JudgeInfoWithMeta {
-    timeLimit?: number;
-    memoryLimit?: number;
-    fileIo?: {
-        inputFilename: string;
-        outputFilename: string;
-    };
-    runSamples?: boolean;
-}
+export type IMetaEditorProps = IEditorComponentProps<IJudgeInfoWithMeta, IMetaEditorOptions>;
 
-interface MetaEditorOptions {
-    // Some of the problem types doesn't have ALL meta props
-    enableTimeMemoryLimit: boolean;
-    enableFileIo: boolean;
-    enableRunSamples: boolean;
-}
-
-type MetaEditorProps = EditorComponentProps<JudgeInfoWithMeta, MetaEditorOptions>;
-
-const MetaEditor: React.FC<MetaEditorProps> = (props) => {
+export const MetaEditor: React.FC<IMetaEditorProps> = (props) => {
     const judgeInfo = props.judgeInfo;
 
     return (
@@ -121,34 +105,3 @@ const MetaEditor: React.FC<MetaEditorProps> = (props) => {
         </div>
     );
 };
-
-const judgeInfoProcessor: JudgeInfoProcessor<JudgeInfoWithMeta, MetaEditorOptions> = {
-    parseJudgeInfo(raw, testData, options) {
-        return {
-            timeLimit: options.enableTimeMemoryLimit && Number.isSafeInteger(raw.timeLimit) ? raw.timeLimit : null,
-            memoryLimit:
-                options.enableTimeMemoryLimit && Number.isSafeInteger(raw.memoryLimit) ? raw.memoryLimit : null,
-            fileIo:
-                options.enableFileIo &&
-                raw.fileIo &&
-                typeof raw.fileIo.inputFilename === "string" &&
-                typeof raw.fileIo.outputFilename === "string"
-                    ? {
-                          inputFilename: raw.fileIo.inputFilename,
-                          outputFilename: raw.fileIo.outputFilename,
-                      }
-                    : null,
-            runSamples: options.enableRunSamples ? !!raw.runSamples : null,
-        };
-    },
-    normalizeJudgeInfo(judgeInfo, options) {
-        if (!options.enableTimeMemoryLimit) {
-            delete judgeInfo.timeLimit;
-            delete judgeInfo.memoryLimit;
-        }
-        if (!judgeInfo.runSamples) delete judgeInfo.runSamples;
-        if (!judgeInfo.fileIo) delete judgeInfo.fileIo;
-    },
-};
-
-export default Object.assign(MetaEditor, judgeInfoProcessor);

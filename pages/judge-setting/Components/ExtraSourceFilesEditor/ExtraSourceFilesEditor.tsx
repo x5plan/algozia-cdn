@@ -6,19 +6,15 @@ import { v4 as uuid } from "uuid";
 
 import style from "./ExtraSourceFilesEditor.module.less";
 
-import { E_CodeLanguage } from "../../shared/Enums";
-import TestDataFileSelector from "./TestDataFileSelector";
-import { JudgeInfoProcessor, EditorComponentProps } from "./Types";
-import { CodeLanguageString } from "../../shared/CodeLanguageString";
+import { E_CodeLanguage } from "../../../shared/Enums";
+import { TestDataFileSelector } from "../TestDataFileSelector";
+import { IEditorComponentProps } from "../common.type";
+import { CodeLanguageString } from "../../../shared/CodeLanguageString";
+import { IJudgeInfoWithExtraSourceFiles } from "./ExtraSourceFilesEditor.type";
 
-export interface JudgeInfoWithExtraSourceFiles {
-    // language => dst => src
-    extraSourceFiles?: Partial<Record<E_CodeLanguage, Record<string, string>>>;
-}
+export type IExtraSourceFilesEditorProps = IEditorComponentProps<IJudgeInfoWithExtraSourceFiles>;
 
-type ExtraSourceFilesEditorProps = EditorComponentProps<JudgeInfoWithExtraSourceFiles>;
-
-const ExtraSourceFilesEditor: React.FC<ExtraSourceFilesEditorProps> = (props) => {
+export const ExtraSourceFilesEditor: React.FC<IExtraSourceFilesEditorProps> = (props) => {
     // To support inserting empty items, use a local copy for editing
     // XXX: If the judge info's extraSourceFiles is modified outside this componment, it won't get synced
     //      This componment should be unmounted and remounted.
@@ -220,34 +216,3 @@ const ExtraSourceFilesEditor: React.FC<ExtraSourceFilesEditorProps> = (props) =>
         </div>
     );
 };
-
-const judgeInfoProcessor: JudgeInfoProcessor<JudgeInfoWithExtraSourceFiles> = {
-    parseJudgeInfo(raw) {
-        return {
-            extraSourceFiles:
-                raw.extraSourceFiles && typeof raw.extraSourceFiles === "object"
-                    ? Object.fromEntries(
-                          Object.entries(raw.extraSourceFiles)
-                              .filter(
-                                  ([language, fileMap]) =>
-                                      Object.values(E_CodeLanguage).includes(language as E_CodeLanguage) &&
-                                      fileMap &&
-                                      typeof fileMap === "object",
-                              )
-                              .map(([language, fileMap]) => [
-                                  language,
-                                  Object.fromEntries(
-                                      Object.entries(fileMap).filter(([dst, src]) => typeof src === "string"),
-                                  ),
-                              ])
-                              .filter(([language, fileMap]) => Object.keys(fileMap).length > 0),
-                      )
-                    : null,
-        };
-    },
-    normalizeJudgeInfo(judgeInfo) {
-        if (!judgeInfo.extraSourceFiles) delete judgeInfo.extraSourceFiles;
-    },
-};
-
-export default Object.assign(ExtraSourceFilesEditor, judgeInfoProcessor);

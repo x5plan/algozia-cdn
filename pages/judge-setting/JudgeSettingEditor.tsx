@@ -1,5 +1,5 @@
 import React from "preact";
-import { useMemo } from "preact/hooks";
+import { useMemo, useState } from "preact/hooks";
 import { lazy, Suspense } from "preact/compat";
 
 import { loadTraditionalProblemEditor } from "./Editors/LazyLoad";
@@ -17,6 +17,7 @@ export interface IProblemJudgeSettingsPageProps {
 
 export const JudgeSettingsEditor: React.FunctionComponent<IProblemJudgeSettingsPageProps> = (props) => {
     const { problemType, testData, rawJudgeInfo } = props;
+    const [pending, setPending] = useState(false);
 
     const ProblemTypeEditorComponentLazy = useMemo(() => {
         switch (problemType) {
@@ -33,7 +34,12 @@ export const JudgeSettingsEditor: React.FunctionComponent<IProblemJudgeSettingsP
     return (
         ProblemTypeEditorComponentLazy && (
             <Suspense fallback={null}>
-                <ProblemTypeEditorComponentLazy testData={testData} rawJudgeInfo={rawJudgeInfo} />
+                <ProblemTypeEditorComponentLazy
+                    testData={testData}
+                    rawJudgeInfo={rawJudgeInfo}
+                    pending={pending}
+                    onJudgeInfoUpdated={() => {}}
+                />
             </Suspense>
         )
     );
