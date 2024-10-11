@@ -57,13 +57,6 @@ export const SubtaskEditor: React.FC<SubtaskEditorProps> = (props) => {
             ? 0
             : Math.round((100 - sumSpecfiedPercentagePoints) / countUnspecfiedPercentagePoints)) || 0;
 
-    const [autoAddTestcaseRegexForInput, setAutoAddTestcaseRegexForInput] = useState("");
-    const [autoAddTestcaseRegexForOutput, setAutoAddTestcaseRegexForOutput] = useState("");
-    const [autoAddTestcaseErrorCompileForInput, setAutoAddTestcaseErrorCompileForInput] = useState("");
-    const [autoAddTestcaseErrorCompileForOutput, setAutoAddTestcaseErrorCompileForOutput] = useState("");
-    const [autoAddTestcaseErrorMatching, setAutoAddTestcaseErrorMatching] = useState("");
-    const [autoAddTestcaseMatchResult, setAutoAddTestcaseMatchResult] = useState<[string, string][]>([]);
-
     function sortTestcases() {
         const temp: [number[], Testcase][] = props.subtask.testcases.map((testcase) => [
             (testcase.inputFile || testcase.outputFile).match(/\d+/g).map(parseInt),
