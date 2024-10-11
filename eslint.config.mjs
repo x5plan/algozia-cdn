@@ -28,7 +28,8 @@ export default [
             "examples/**",
             "fonts/**",
             "scripts/**",
-            "**/vite.config.mts",
+            "*.config.mjs",
+            "*.config.mts",
         ],
     },
     ...compat.extends(
@@ -57,7 +58,7 @@ export default [
                     jsx: true,
                 },
 
-                project: "tsconfig.pages.json",
+                project: "tsconfig.json",
 
                 tsconfigRootDir: __dirname,
             },
