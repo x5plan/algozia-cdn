@@ -1,4 +1,4 @@
-import type { E_ProblemType } from "../shared/Enums";
+import type { E_ProblemType } from "<Shared>/Enums";
 
 interface IChangeTypeMessageData {
     type: "ChangeType";

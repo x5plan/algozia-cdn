@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 
-import { E_SubtaskScoringType } from "../../../../shared/Enums";
+import { E_SubtaskScoringType } from "<Shared>/Enums";
 import type { IJudgeInfoProcessor } from "../Type";
 import type { IJudgeInfoWithSubtasks, ISubtasksEditorOptions } from "./SubtasksEditor.type";
 

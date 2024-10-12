@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import minifyHtml from "vite-plugin-html-minifier-terser";
 import preact from "@preact/preset-vite";
 import pages from "./configs/pages.json";
+import path from "path";
 
 const pagesConfig = Object.fromEntries(pages.map((page) => [page, `/${page}/main.tsx`]));
 
@@ -25,13 +26,18 @@ export default defineConfig({
     ],
     root: "./pages",
     base: "./",
+    resolve: {
+        alias: {
+            "<Shared>": path.resolve(__dirname, "pages", "shared"),
+        },
+    },
     server: {
         port: 5173,
         cors: true,
         strictPort: true,
     },
     build: {
-        minify: false,
+        minify: "terser",
         manifest: true,
         outDir: "../dist/pages",
         emptyOutDir: true,

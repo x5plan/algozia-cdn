@@ -1,4 +1,4 @@
-import type { E_SubtaskScoringType } from "../../../../shared/Enums";
+import type { E_SubtaskScoringType } from "<Shared>/Enums";
 
 export interface ITestcase {
     uuid: string;

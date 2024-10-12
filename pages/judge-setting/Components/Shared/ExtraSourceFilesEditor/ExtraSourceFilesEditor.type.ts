@@ -1,4 +1,4 @@
-import type { E_CodeLanguage } from "../../../../shared/Enums";
+import type { E_CodeLanguage } from "<Shared>/Enums";
 
 export interface IJudgeInfoWithExtraSourceFiles {
     // language => dst => src

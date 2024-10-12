@@ -2,8 +2,9 @@ import {
     checkCodeFileExtension,
     filterValidCompileAndRunOptions,
     getDefaultCompileAndRunOptions,
-} from "../../../shared/CodeLanguageUtils";
-import { E_CodeLanguage } from "../../../shared/Enums";
+} from "<Shared>/CodeLanguageUtils";
+import { E_CodeLanguage } from "<Shared>/Enums";
+
 import { ExtraSourceFilesJudgeInfoProcessor } from "../Shared/ExtraSourceFilesEditor";
 import { type MetaEditor, MetaJudgeInfoProcessor } from "../Shared/MetaEditor";
 import { SubtaskJudgeInfoProcessor, type SubtasksEditor } from "../Shared/SubtasksEditor";
