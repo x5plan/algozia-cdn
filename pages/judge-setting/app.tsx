@@ -1,6 +1,7 @@
 import { useState } from "preact/hooks";
 import React from "react";
 import { Grid } from "semantic-ui-react";
+import { v4 as uuid } from "uuid";
 
 import type { E_ProblemType } from "../shared/Enums";
 import { CodeBox } from "./Components/CodeBox";
@@ -10,13 +11,13 @@ import { getSharedObject } from "./Utils";
 
 export const App: React.FC = () => {
     const { data, onUpdateType, onUpdateJudgeInfo } = getSharedObject();
+    const [editorKey, setEditorKey] = useState(uuid());
 
-    const [judgeInfoRaw, setJudgeInfoRaw] = useState<any>(data.judgeInfo);
     const [normalizeJudgeInfo, setNormalizeJudgeInfo] = useState<any>(data.judgeInfo);
     const [problemType, setProblemType] = useState<E_ProblemType>(data.type as E_ProblemType);
 
     return (
-        <Grid.Row>
+        <>
             <Grid.Column width={7}>
                 <CodeBox judgeInfo={normalizeJudgeInfo} />
             </Grid.Column>
@@ -27,21 +28,20 @@ export const App: React.FC = () => {
                     onTypeChange={(type) => {
                         setProblemType(type);
                         onUpdateType(type);
+                        setEditorKey(uuid());
                     }}
                 />
                 <JudgeInfoEditor
+                    key={editorKey}
                     problemType={problemType}
-                    judgeInfoRaw={judgeInfoRaw}
+                    judgeInfoRaw={data.judgeInfo}
                     testData={data.testDataFileNames}
-                    onUpdateJudgeInfoRaw={(judgeInfoRaw) => {
-                        setJudgeInfoRaw(judgeInfoRaw);
-                    }}
                     onUpdateNomalizedJudgeInfo={(judgeInfo) => {
                         setNormalizeJudgeInfo(judgeInfo);
                         onUpdateJudgeInfo(judgeInfo);
                     }}
                 />
             </Grid.Column>
-        </Grid.Row>
+        </>
     );
 };

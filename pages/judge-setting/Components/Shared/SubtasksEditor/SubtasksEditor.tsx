@@ -43,7 +43,7 @@ export interface ISubtaskEditorProps {
     onAddTestcase: (testcaseIndex: number) => void;
 }
 
-export const SubtaskEditor: React.FC<ISubtaskEditorProps> = memo((props) => {
+export const SubtaskEditor: React.FC<ISubtaskEditorProps> = (props) => {
     const {
         options,
         testData,
@@ -289,7 +289,7 @@ export const SubtaskEditor: React.FC<ISubtaskEditorProps> = memo((props) => {
             )}
         </>
     );
-});
+};
 
 type SubtasksEditorProps = IEditorComponentProps<IJudgeInfoWithSubtasks, ISubtasksEditorOptions>;
 

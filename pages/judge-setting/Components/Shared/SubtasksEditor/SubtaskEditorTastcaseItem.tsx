@@ -144,7 +144,7 @@ export const SubtaskEditorTastcaseItem: React.FC<ISubtaskEditorTestcaseItemProps
                                 value={
                                     props.testcase.userOutputFilename == null ? "" : props.testcase.userOutputFilename
                                 }
-                                icon="file upload"
+                                icon="file code outline"
                                 iconPosition="left"
                                 onChange={(e, { value }) =>
                                     props.onUpdate({ userOutputFilename: value === "" ? null : value })

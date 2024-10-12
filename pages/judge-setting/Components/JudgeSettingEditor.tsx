@@ -11,12 +11,11 @@ export interface IJudgeInfoEditorProps {
     problemType: E_ProblemType;
     testData: string[];
     judgeInfoRaw: any;
-    onUpdateJudgeInfoRaw: (judgeInfoRaw: any) => void;
     onUpdateNomalizedJudgeInfo: (judgeInfo: any) => void;
 }
 
 export const JudgeInfoEditor: React.FC<IJudgeInfoEditorProps> = (props) => {
-    const { problemType, testData, judgeInfoRaw, onUpdateJudgeInfoRaw, onUpdateNomalizedJudgeInfo } = props;
+    const { problemType, testData, judgeInfoRaw, onUpdateNomalizedJudgeInfo } = props;
 
     const JudgeInfoEditorComponent = useMemo(() => {
         switch (problemType) {
@@ -40,10 +39,7 @@ export const JudgeInfoEditor: React.FC<IJudgeInfoEditorProps> = (props) => {
         }
     }, [problemType]);
 
-    const judgeInfo = useMemo(
-        () => judgeInfoProcesser.parseJudgeInfo(judgeInfoRaw, testData),
-        [judgeInfoProcesser, judgeInfoRaw, testData],
-    );
+    const [judgeInfo, setJudgeInfo] = useState(judgeInfoProcesser.parseJudgeInfo(judgeInfoRaw, testData));
 
     const onJudgeInfoUpdated = useCallback(
         (deltaOrReducer: Partial<unknown> | ((judgeInfo: unknown) => Partial<unknown>)) => {
@@ -51,9 +47,9 @@ export const JudgeInfoEditor: React.FC<IJudgeInfoEditorProps> = (props) => {
                 ...judgeInfo,
                 ...(typeof deltaOrReducer === "function" ? deltaOrReducer(judgeInfo) : deltaOrReducer),
             };
-            onUpdateJudgeInfoRaw(newJudgeInfo);
+            setJudgeInfo(newJudgeInfo);
         },
-        [judgeInfo, onUpdateJudgeInfoRaw],
+        [judgeInfo],
     );
 
     React.useEffect(() => {
