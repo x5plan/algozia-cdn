@@ -1,10 +1,9 @@
+import "vite/modulepreload-polyfill";
+import "../shared/style.less";
+
 import { render } from "preact";
-import { App } from "./app";
-import jQuery from "jquery";
+import type React from "react";
 
-(window as any).$ = jQuery;
+import { App } from "./App";
 
-const root = document.getElementById("app");
-if (root) {
-    render(<App />, root);
-}
+render(<App />, document.getElementById("app-root")!);
