@@ -1,5 +1,6 @@
 interface Window {
     PageAppLoaderUtil: typeof PageAppLoaderUtil;
+    __viteDev__?: string;
 }
 
 interface IViteChunk {
@@ -28,31 +29,39 @@ namespace PageAppLoaderUtil {
         document.body.appendChild(script);
     }
 
+    function injectViteDevScript(baseUrl: string) {
+        const script = document.createElement("script");
+        script.innerHTML = `import RefreshRuntime from '${baseUrl}@react-refresh';
+RefreshRuntime.injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;
+window.__vite_plugin_react_preamble_installed__ = true;`;
+    }
+
     export function loadPageApp(pagename: string, cdnUrl: string) {
         if (!document.getElementById("app-root")) {
             throw new Error("Element with id 'app-root' not found.");
         }
 
-        const viteManifestUrl = `${cdnUrl}pages/.vite/manifest.json`;
+        if (window.__viteDev__) {
+            injectViteDevScript(window.__viteDev__);
+            injectScript(`${window.__viteDev__}@vite/client`);
+            injectScript(`${window.__viteDev__}${pagename}/main.tsx`);
+            return;
+        }
 
-        $.getJSON(viteManifestUrl, (manifest: Record<string, IViteChunk>) => {
-            const chunk = Object.values(manifest).find((chunk) => {
-                if (!chunk.isEntry) {
-                    return false;
-                }
-
-                return chunk.name === pagename;
-            });
+        const baseUrl = `${cdnUrl}pages/`;
+        $.getJSON(`${baseUrl}.vite/manifest.json`, (manifest: Record<string, IViteChunk>) => {
+            const chunk = Object.values(manifest).find((chunk) => chunk.isEntry && chunk.name === pagename);
 
             if (!chunk) {
-                return;
+                throw new Error(`Entry chunk for ${pagename} not found.`);
             }
 
             chunk.css?.forEach((css: string) => {
-                injectCss(`${cdnUrl}pages/${css}`);
+                injectCss(`${baseUrl}${css}`);
             });
-
-            injectScript(`${cdnUrl}pages/${chunk.file}`);
+            injectScript(`${baseUrl}${chunk.file}`);
         });
     }
 
