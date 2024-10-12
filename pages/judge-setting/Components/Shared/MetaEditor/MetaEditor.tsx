@@ -8,12 +8,12 @@ import type { IJudgeInfoWithMeta, IMetaEditorOptions } from "./MetaEditor.type";
 export type IMetaEditorProps = IEditorComponentProps<IJudgeInfoWithMeta, IMetaEditorOptions>;
 
 export const MetaEditor: React.FC<IMetaEditorProps> = (props) => {
-    const judgeInfo = props.judgeInfo;
+    const { judgeInfo, options, onUpdateJudgeInfo } = props;
 
     return (
         <div>
             <Form>
-                {props.options.enableTimeMemoryLimit && (
+                {options.enableTimeMemoryLimit && (
                     <Form.Group>
                         <Form.Field width={8}>
                             <label>时间限制</label>
@@ -26,7 +26,7 @@ export const MetaEditor: React.FC<IMetaEditorProps> = (props) => {
                                 iconPosition="left"
                                 onChange={(e, { value }) =>
                                     (value === "" || (Number.isSafeInteger(Number(value)) && Number(value) >= 0)) &&
-                                    props.onUpdateJudgeInfo({ timeLimit: value === "" ? null : Number(value) })
+                                    onUpdateJudgeInfo({ timeLimit: value === "" ? null : Number(value) })
                                 }
                             />
                         </Form.Field>
@@ -41,13 +41,13 @@ export const MetaEditor: React.FC<IMetaEditorProps> = (props) => {
                                 iconPosition="left"
                                 onChange={(e, { value }) =>
                                     (value === "" || (Number.isSafeInteger(Number(value)) && Number(value) >= 0)) &&
-                                    props.onUpdateJudgeInfo({ memoryLimit: value === "" ? null : Number(value) })
+                                    onUpdateJudgeInfo({ memoryLimit: value === "" ? null : Number(value) })
                                 }
                             />
                         </Form.Field>
                     </Form.Group>
                 )}
-                {props.options.enableFileIo && judgeInfo.fileIo && (
+                {options.enableFileIo && judgeInfo.fileIo && (
                     <Form.Group>
                         <Form.Field width={8}>
                             <label>输入文件</label>
@@ -57,7 +57,7 @@ export const MetaEditor: React.FC<IMetaEditorProps> = (props) => {
                                 icon="sign in"
                                 iconPosition="left"
                                 onChange={(e, { value }) =>
-                                    props.onUpdateJudgeInfo({
+                                    onUpdateJudgeInfo({
                                         fileIo: {
                                             inputFilename: value,
                                             outputFilename: judgeInfo.fileIo.outputFilename,
@@ -74,7 +74,7 @@ export const MetaEditor: React.FC<IMetaEditorProps> = (props) => {
                                 icon="sign out"
                                 iconPosition="left"
                                 onChange={(e, { value }) =>
-                                    props.onUpdateJudgeInfo({
+                                    onUpdateJudgeInfo({
                                         fileIo: {
                                             inputFilename: judgeInfo.fileIo.inputFilename,
                                             outputFilename: value,
@@ -85,7 +85,7 @@ export const MetaEditor: React.FC<IMetaEditorProps> = (props) => {
                         </Form.Field>
                     </Form.Group>
                 )}
-                {props.options.enableFileIo && (
+                {options.enableFileIo && (
                     <Form.Group>
                         <Form.Checkbox
                             className={style.checkbox}
@@ -93,7 +93,7 @@ export const MetaEditor: React.FC<IMetaEditorProps> = (props) => {
                             label="使用标准输入输出"
                             checked={!judgeInfo.fileIo}
                             onChange={(e, { checked }) =>
-                                props.onUpdateJudgeInfo({
+                                onUpdateJudgeInfo({
                                     fileIo: checked ? null : { inputFilename: "", outputFilename: "" },
                                 })
                             }

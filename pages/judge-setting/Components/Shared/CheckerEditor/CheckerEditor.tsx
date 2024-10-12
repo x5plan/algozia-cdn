@@ -1,4 +1,5 @@
-import React, { useRef } from "react";
+import { useCallback, useRef } from "preact/compat";
+import React from "react";
 import { Form, Header, Input, Menu, Segment } from "semantic-ui-react";
 
 import { TestDataFileSelector } from "../TestDataFileSelector";
@@ -11,25 +12,31 @@ import { CodeLanguageAndOptions } from "./CodeLanguageAndOptions";
 export type ICheckerEditorProps = IEditorComponentProps<IJudgeInfoWithChecker>;
 
 export const CheckerEditor: React.FC<ICheckerEditorProps> = (props) => {
-    const checker = props.judgeInfo.checker;
+    const { testData, judgeInfo, onUpdateJudgeInfo } = props;
+    const { checker } = judgeInfo;
 
-    function onUpdateChecker(delta: Partial<ICheckerConfig>) {
-        props.onUpdateJudgeInfo(({ checker }) => ({
-            checker: Object.assign({}, checker, delta),
-        }));
-    }
+    const checkerConfigBackup = useRef<Map<ICheckerType, ICheckerConfig>>(new Map());
 
-    const checkerConfigBackup = useRef<Map<ICheckerType, ICheckerConfig>>(new Map()).current;
-    function onChangeCheckerType(type: ICheckerType) {
-        if (props.pending) return;
+    const onUpdateChecker = useCallback(
+        (delta: Partial<ICheckerConfig>) => {
+            onUpdateJudgeInfo(({ checker }) => ({
+                checker: Object.assign({}, checker, delta),
+            }));
+        },
+        [onUpdateJudgeInfo],
+    );
 
-        if (type === checker.type) return;
-        checkerConfigBackup.set(checker.type, checker);
+    const onChangeCheckerType = useCallback(
+        (type: ICheckerType) => {
+            if (type === checker.type) return;
+            checkerConfigBackup.current.set(checker.type, checker);
 
-        props.onUpdateJudgeInfo({
-            checker: checkerConfigBackup.get(type) || parseCheckerConfig({ type }, props.testData),
-        });
-    }
+            onUpdateJudgeInfo({
+                checker: checkerConfigBackup.current.get(type) || parseCheckerConfig({ type }, testData),
+            });
+        },
+        [checker, onUpdateJudgeInfo, testData],
+    );
 
     return (
         <Form className={style.wrapper}>
@@ -101,7 +108,7 @@ export const CheckerEditor: React.FC<ICheckerEditorProps> = (props) => {
                                         label="文件"
                                         placeholder="无文件"
                                         value={checker.filename}
-                                        testData={props.testData}
+                                        testData={testData}
                                         onChange={(value) => onUpdateChecker({ filename: value })}
                                     />
                                     <div className={style.compileAndRunOptions}>
@@ -138,7 +145,7 @@ export const CheckerEditor: React.FC<ICheckerEditorProps> = (props) => {
                                             <label>时间限制</label>
                                             <Input
                                                 className={style.labeledInput}
-                                                placeholder={props.judgeInfo["timeLimit"] ?? "时间限制"}
+                                                placeholder={judgeInfo["timeLimit"] ?? "时间限制"}
                                                 value={checker.timeLimit == null ? "" : checker.timeLimit}
                                                 label="ms"
                                                 labelPosition="right"
@@ -155,7 +162,7 @@ export const CheckerEditor: React.FC<ICheckerEditorProps> = (props) => {
                                             <label>内存限制</label>
                                             <Input
                                                 className={style.labeledInput}
-                                                placeholder={props.judgeInfo["memoryLimit"] ?? "内存限制"}
+                                                placeholder={judgeInfo["memoryLimit"] ?? "内存限制"}
                                                 value={checker.memoryLimit == null ? "" : checker.memoryLimit}
                                                 label="MiB"
                                                 labelPosition="right"

@@ -15,7 +15,6 @@ import type { IInteractorConfig, IJudgeInfoInteraction } from "./InteractionProb
 export const metaEditorOptions: IOptions<typeof MetaEditor> = {
     enableTimeMemoryLimit: true,
     enableFileIo: false,
-    enableRunSamples: true,
 };
 
 export const subtasksEditorOptions: IOptions<typeof SubtasksEditor> = {

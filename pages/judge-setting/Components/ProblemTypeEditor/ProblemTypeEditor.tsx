@@ -7,22 +7,21 @@ import style from "./ProblemTypeEditor.module.less";
 
 export interface IProblemTypeEditorProps {
     type: E_ProblemType;
-    pending: boolean;
     hasSubmission: boolean;
     onTypeChange: (type: E_ProblemType) => void;
 }
 
 export const ProblemTypeEditor: React.FC<IProblemTypeEditorProps> = (props) => {
-    const { type, pending, hasSubmission, onTypeChange } = props;
+    const { type, hasSubmission, onTypeChange } = props;
 
     const [newType, setNewType] = useState(type);
     const [switchProblemPopupOpen, setSwitchProblemPopupOpen] = useState(false);
 
     return (
         <Form className={style.problemTypeForm}>
-            <p>
+            <div style={{ marginBottom: 14 }}>
                 <strong>为了避免系统出错，已有提交的题目不允许在提交答案和非提交答案之间更改。</strong>
-            </p>
+            </div>
             <Form.Field inline width={16} className={style.field}>
                 <label className={style.label}>题目类型</label>
                 <Dropdown
@@ -46,9 +45,7 @@ export const ProblemTypeEditor: React.FC<IProblemTypeEditorProps> = (props) => {
                     onChange={(e, { value }) => setNewType(value as E_ProblemType)}
                 />
                 <Popup
-                    trigger={
-                        <Button disabled={pending || newType === type} className={style.switchButton} content="切换" />
-                    }
+                    trigger={<Button disabled={newType === type} className={style.switchButton} content="切换" />}
                     content={
                         <div>
                             <p>切换题目类型会清空已有的测试数据和评测信息，是否确认切换？</p>

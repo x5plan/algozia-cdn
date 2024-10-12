@@ -1,5 +1,6 @@
 import type React from "react";
-import type { DropdownProps, FormSelectProps, SemanticICONS } from "semantic-ui-react";
+import { useMemo } from "react";
+import type { DropdownItemProps, DropdownProps, FormSelectProps, SemanticICONS } from "semantic-ui-react";
 import { Dropdown, Form, Icon, Popup } from "semantic-ui-react";
 
 import style from "./TestDataFileSelector.module.less";
@@ -18,43 +19,21 @@ export interface ITestDataFileSelectorProps {
 }
 
 export const TestDataFileSelector: React.FC<ITestDataFileSelectorProps> = (props) => {
-    const uiProps: FormSelectProps | DropdownProps = {
-        className:
-            style.fileSelect +
-            " " +
-            (props.type === "ItemSearchDropdown" ? style.itemSearchDropdown : style.formSelect) +
-            (props.className ? " " + props.className : ""),
-        label: props.label,
-        text:
-            props.value && !props.testData.some((file) => file === props.value)
-                ? ((
-                      <>
-                          {props.iconInputOrOutput && (
-                              <Icon className={style.iconInputOrOutput} name={props.iconInputOrOutput} />
-                          )}
-                          <Popup
-                              trigger={<Icon name="warning sign" className={style.iconFile} />}
-                              content="数据包中找不到该文件。"
-                              position="top center"
-                          />
-                          <span>{props.value}</span>
-                      </>
-                  ) as any)
-                : undefined,
-        placeholder: props.placeholder,
-        value: props.value,
-        options: [
-            ...(props.optional
+    const { type, className, iconInputOrOutput, label, testData, optional, value, placeholder, onChange } = props;
+
+    const dropdownItems = useMemo<DropdownItemProps[]>(
+        () => [
+            ...(optional
                 ? [
                       {
                           key: null,
                           value: null,
                           text: (
                               <>
-                                  {props.iconInputOrOutput && (
+                                  {iconInputOrOutput && (
                                       <Icon
                                           className={style.iconInputOrOutput + " " + style.invisible}
-                                          name={props.iconInputOrOutput}
+                                          name={iconInputOrOutput}
                                       />
                                   )}
                                   <Icon name="file code outline" className={style.iconFile + " " + style.invisible} />
@@ -64,26 +43,56 @@ export const TestDataFileSelector: React.FC<ITestDataFileSelectorProps> = (props
                       },
                   ]
                 : []),
-            ...props.testData.map((file) => ({
+            ...testData.map((file) => ({
                 key: file,
                 value: file,
                 text: (
                     <>
-                        {props.iconInputOrOutput && (
-                            <Icon className={style.iconInputOrOutput} name={props.iconInputOrOutput} />
-                        )}
+                        {iconInputOrOutput && <Icon className={style.iconInputOrOutput} name={iconInputOrOutput} />}
                         <Icon name={getFileIcon(file)} className={style.iconFile} />
                         <div className={style.filename}>{file}</div>
                     </>
                 ),
             })),
         ],
-        onChange: (e, { value }) => props.onChange(value as string),
-    };
+        [iconInputOrOutput, optional, testData],
+    );
 
-    return props.type === "ItemSearchDropdown" ? (
+    const uiProps = useMemo<FormSelectProps | DropdownProps>(
+        () => ({
+            className:
+                style.fileSelect +
+                " " +
+                (type === "ItemSearchDropdown" ? style.itemSearchDropdown : style.formSelect) +
+                (className ? " " + className : ""),
+            label,
+            text:
+                value && !testData.some((file) => file === value)
+                    ? ((
+                          <>
+                              {iconInputOrOutput && (
+                                  <Icon className={style.iconInputOrOutput} name={iconInputOrOutput} />
+                              )}
+                              <Popup
+                                  trigger={<Icon name="warning sign" className={style.iconFile} />}
+                                  content="数据包中找不到该文件。"
+                                  position="top center"
+                              />
+                              <span>{value}</span>
+                          </>
+                      ) as any)
+                    : undefined,
+            placeholder,
+            value,
+            options: dropdownItems,
+            onChange: (e, { value }) => onChange(value as string),
+        }),
+        [className, dropdownItems, iconInputOrOutput, label, onChange, placeholder, testData, type, value],
+    );
+
+    return type === "ItemSearchDropdown" ? (
         <Dropdown item selection search noResultsMessage={"找不到匹配的文件。"} {...uiProps} />
     ) : (
-        <Form.Select open={props.testData.length === 0 ? false : undefined} {...(uiProps as FormSelectProps)} />
+        <Form.Select open={testData.length === 0 ? false : undefined} {...(uiProps as FormSelectProps)} />
     );
 };

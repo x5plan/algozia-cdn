@@ -11,5 +11,4 @@ export interface IMetaEditorOptions {
     // Some of the problem types doesn't have ALL meta props
     enableTimeMemoryLimit: boolean;
     enableFileIo: boolean;
-    enableRunSamples: boolean;
 }

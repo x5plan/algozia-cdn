@@ -4,6 +4,7 @@ import {
     getDefaultCompileAndRunOptions,
 } from "<Shared>/CodeLanguageUtils";
 import { E_CodeLanguage } from "<Shared>/Enums";
+
 import type { IJudgeInfoProcessor } from "../Type";
 import type { ICheckerConfig, ICheckerType, IJudgeInfoWithChecker } from "./CheckerEditor.type";
 

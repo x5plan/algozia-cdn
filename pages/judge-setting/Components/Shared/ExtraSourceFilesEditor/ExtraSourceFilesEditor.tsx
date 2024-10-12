@@ -1,5 +1,5 @@
 import update from "immutability-helper";
-import { useState } from "preact/compat";
+import { useCallback, useState } from "preact/compat";
 import type React from "react";
 import { Button, Dropdown, Form, Input, Menu, Popup } from "semantic-ui-react";
 import { v4 as uuid } from "uuid";
@@ -14,6 +14,8 @@ import type { IJudgeInfoWithExtraSourceFiles } from "./ExtraSourceFilesEditor.ty
 export type IExtraSourceFilesEditorProps = IEditorComponentProps<IJudgeInfoWithExtraSourceFiles>;
 
 export const ExtraSourceFilesEditor: React.FC<IExtraSourceFilesEditorProps> = (props) => {
+    const { judgeInfo, testData, onUpdateJudgeInfo } = props;
+
     // To support inserting empty items, use a local copy for editing
     // XXX: If the judge info's extraSourceFiles is modified outside this componment, it won't get synced
     //      This componment should be unmounted and remounted.
@@ -21,97 +23,104 @@ export const ExtraSourceFilesEditor: React.FC<IExtraSourceFilesEditorProps> = (p
     const [extraSourceFiles, setExtraSourceFiles] = useState<ExtraSourceFiles>(
         Object.fromEntries(
             Object.values(E_CodeLanguage).map((codeLanguage) =>
-                props.judgeInfo.extraSourceFiles
+                judgeInfo.extraSourceFiles
                     ? [
                           codeLanguage,
-                          Object.entries(props.judgeInfo.extraSourceFiles[codeLanguage] || {}).map((a) => [
-                              uuid(),
-                              ...a,
-                          ]),
+                          Object.entries(judgeInfo.extraSourceFiles[codeLanguage] || {}).map((a) => [uuid(), ...a]),
                       ]
                     : [codeLanguage, []],
             ),
         ),
     );
 
-    function updateJudgeInfo(extraSourceFiles: ExtraSourceFiles) {
-        props.onUpdateJudgeInfo({
-            extraSourceFiles: Object.fromEntries(
-                Object.values(E_CodeLanguage)
-                    .map((codeLanguage) =>
-                        extraSourceFiles[codeLanguage].length > 0
-                            ? [codeLanguage, Object.fromEntries(extraSourceFiles[codeLanguage].map((a) => a.slice(1)))]
-                            : null,
-                    )
-                    .filter((x) => x),
-            ),
-        });
-    }
+    const updateJudgeInfo = useCallback(
+        (extraSourceFiles: ExtraSourceFiles) => {
+            onUpdateJudgeInfo({
+                extraSourceFiles: Object.fromEntries(
+                    Object.values(E_CodeLanguage)
+                        .map((codeLanguage) =>
+                            extraSourceFiles[codeLanguage].length > 0
+                                ? [
+                                      codeLanguage,
+                                      Object.fromEntries(extraSourceFiles[codeLanguage].map((a) => a.slice(1))),
+                                  ]
+                                : null,
+                        )
+                        .filter((x) => x),
+                ),
+            });
+        },
+        [onUpdateJudgeInfo],
+    );
 
     // Update both a local copy and judge info
-    function updateExtraSourceFiles(newExtraSourceFiles: ExtraSourceFiles) {
-        setExtraSourceFiles(newExtraSourceFiles);
-        updateJudgeInfo(newExtraSourceFiles);
-    }
+    const updateExtraSourceFiles = useCallback(
+        (newExtraSourceFiles: ExtraSourceFiles) => {
+            setExtraSourceFiles(newExtraSourceFiles);
+            updateJudgeInfo(newExtraSourceFiles);
+        },
+        [updateJudgeInfo],
+    );
 
     // Preverse the local copy
-    function onToggleExtraSourceFiles() {
-        if (props.pending) return;
-
-        if (!props.judgeInfo.extraSourceFiles) {
+    const onToggleExtraSourceFiles = useCallback(() => {
+        if (!judgeInfo.extraSourceFiles) {
             updateJudgeInfo(extraSourceFiles);
         } else {
-            props.onUpdateJudgeInfo({ extraSourceFiles: null });
+            onUpdateJudgeInfo({ extraSourceFiles: null });
         }
-    }
+    }, [extraSourceFiles, onUpdateJudgeInfo, judgeInfo.extraSourceFiles, updateJudgeInfo]);
 
-    function updateExtraSourceFile(
-        codeLanguage: E_CodeLanguage,
-        operation: "ADD" | "DEL" | "UPDATE",
-        i?: number,
-        newValue?: { src?: string; dst?: string },
-    ) {
-        if (operation === "ADD") {
-            updateExtraSourceFiles(
-                update(extraSourceFiles, {
-                    [codeLanguage]: {
-                        $push: [[uuid(), "", ""]],
-                    },
-                }),
-            );
-        } else if (operation === "DEL") {
-            updateExtraSourceFiles(
-                update(extraSourceFiles, {
-                    [codeLanguage]: {
-                        $splice: [[i, 1]],
-                    },
-                }),
-            );
-        } else {
-            const item = extraSourceFiles[codeLanguage][i];
-            const newDst = newValue.dst == null ? item[1] : newValue.dst;
-            const newSrc = newValue.src == null ? item[2] : newValue.src;
-            updateExtraSourceFiles(
-                update(extraSourceFiles, {
-                    [codeLanguage]: {
-                        [i]: {
-                            $set: [item[0], newDst, newSrc],
+    const updateExtraSourceFile = useCallback(
+        (
+            codeLanguage: E_CodeLanguage,
+            operation: "ADD" | "DEL" | "UPDATE",
+            i?: number,
+            newValue?: { src?: string; dst?: string },
+        ) => {
+            if (operation === "ADD") {
+                updateExtraSourceFiles(
+                    update(extraSourceFiles, {
+                        [codeLanguage]: {
+                            $push: [[uuid(), "", ""]],
                         },
-                    },
-                }),
-            );
-        }
-    }
+                    }),
+                );
+            } else if (operation === "DEL") {
+                updateExtraSourceFiles(
+                    update(extraSourceFiles, {
+                        [codeLanguage]: {
+                            $splice: [[i, 1]],
+                        },
+                    }),
+                );
+            } else {
+                const item = extraSourceFiles[codeLanguage][i];
+                const newDst = newValue.dst == null ? item[1] : newValue.dst;
+                const newSrc = newValue.src == null ? item[2] : newValue.src;
+                updateExtraSourceFiles(
+                    update(extraSourceFiles, {
+                        [codeLanguage]: {
+                            [i]: {
+                                $set: [item[0], newDst, newSrc],
+                            },
+                        },
+                    }),
+                );
+            }
+        },
+        [extraSourceFiles, updateExtraSourceFiles],
+    );
 
     return (
         <div>
             <Form>
                 <Form.Checkbox
-                    checked={!!props.judgeInfo.extraSourceFiles}
+                    checked={!!judgeInfo.extraSourceFiles}
                     label="编译时加入附加源文件"
                     onChange={() => onToggleExtraSourceFiles()}
                 />
-                {props.judgeInfo.extraSourceFiles && (
+                {judgeInfo.extraSourceFiles && (
                     <>
                         <Menu className={style.menu + " " + style.menuHeader + " " + style.color_6} attached="top">
                             <Menu.Item className={style.itemTitle}>
@@ -161,7 +170,7 @@ export const ExtraSourceFilesEditor: React.FC<IExtraSourceFilesEditorProps> = (p
                                             <TestDataFileSelector
                                                 type="ItemSearchDropdown"
                                                 className={style.dropdown}
-                                                testData={props.testData}
+                                                testData={testData}
                                                 placeholder="源文件"
                                                 value={src}
                                                 onChange={(value) =>

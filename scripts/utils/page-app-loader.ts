@@ -1,5 +1,6 @@
 interface Window {
     PageAppLoaderUtil: typeof PageAppLoaderUtil;
+    PageSharedObject: any;
     __viteDev__?: string;
 }
 
@@ -41,6 +42,10 @@ window.__vite_plugin_react_preamble_installed__ = true;`;
     export function loadPageApp(pagename: string, cdnUrl: string) {
         if (!document.getElementById("app-root")) {
             throw new Error("Element with id 'app-root' not found.");
+        }
+
+        if (!window.PageSharedObject) {
+            window.PageSharedObject = {};
         }
 
         if (window.__viteDev__) {

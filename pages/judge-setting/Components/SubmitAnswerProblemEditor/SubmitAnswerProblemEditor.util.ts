@@ -9,7 +9,6 @@ import type { IJudgeInfoSubmitAnswer } from "./SubmitAnswerProblemEditor";
 export const metaEditorOptions: IOptions<typeof MetaEditor> = {
     enableTimeMemoryLimit: false,
     enableFileIo: false,
-    enableRunSamples: false,
 };
 
 export const subtasksEditorOptions: IOptions<typeof SubtasksEditor> = {

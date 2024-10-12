@@ -41,7 +41,7 @@ const interactorInterfaces: InteractorInterface[] = ["stdio", "shm"];
 export type InteractionProblemEditorProps = IEditorComponentProps<IJudgeInfoInteraction>;
 
 export const InteractionProblemEditor: React.FC<InteractionProblemEditorProps> = (props) => {
-    const { pending, testData, judgeInfo, onUpdateJudgeInfo } = props;
+    const { testData, judgeInfo, onUpdateJudgeInfo } = props;
 
     const interactor = judgeInfo.interactor;
 
@@ -59,7 +59,6 @@ export const InteractionProblemEditor: React.FC<InteractionProblemEditorProps> =
             <MetaEditor
                 judgeInfo={judgeInfo}
                 testData={testData}
-                pending={pending}
                 onUpdateJudgeInfo={onUpdateJudgeInfo}
                 options={metaEditorOptions}
             />
@@ -166,16 +165,10 @@ export const InteractionProblemEditor: React.FC<InteractionProblemEditorProps> =
             <SubtasksEditor
                 judgeInfo={judgeInfo}
                 testData={testData}
-                pending={pending}
                 onUpdateJudgeInfo={onUpdateJudgeInfo}
                 options={subtasksEditorOptions}
             />
-            <ExtraSourceFilesEditor
-                judgeInfo={judgeInfo}
-                testData={testData}
-                pending={pending}
-                onUpdateJudgeInfo={onUpdateJudgeInfo}
-            />
+            <ExtraSourceFilesEditor judgeInfo={judgeInfo} testData={testData} onUpdateJudgeInfo={onUpdateJudgeInfo} />
         </>
     );
 };

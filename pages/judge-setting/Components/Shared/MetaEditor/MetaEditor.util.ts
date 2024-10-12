@@ -4,9 +4,8 @@ import type { IJudgeInfoWithMeta, IMetaEditorOptions } from "./MetaEditor.type";
 export const MetaJudgeInfoProcessor: IJudgeInfoProcessor<IJudgeInfoWithMeta, IMetaEditorOptions> = {
     parseJudgeInfo(raw, testData, options) {
         return {
-            timeLimit: options.enableTimeMemoryLimit && Number.isSafeInteger(raw.timeLimit) ? raw.timeLimit : null,
-            memoryLimit:
-                options.enableTimeMemoryLimit && Number.isSafeInteger(raw.memoryLimit) ? raw.memoryLimit : null,
+            timeLimit: options.enableTimeMemoryLimit && Number.isSafeInteger(raw.timeLimit) ? raw.timeLimit : 1000,
+            memoryLimit: options.enableTimeMemoryLimit && Number.isSafeInteger(raw.memoryLimit) ? raw.memoryLimit : 256,
             fileIo:
                 options.enableFileIo &&
                 raw.fileIo &&
@@ -17,7 +16,6 @@ export const MetaJudgeInfoProcessor: IJudgeInfoProcessor<IJudgeInfoWithMeta, IMe
                           outputFilename: raw.fileIo.outputFilename,
                       }
                     : null,
-            runSamples: options.enableRunSamples ? !!raw.runSamples : null,
         };
     },
     normalizeJudgeInfo(judgeInfo, options) {

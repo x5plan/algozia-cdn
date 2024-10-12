@@ -10,7 +10,6 @@ import type { IJudgeInfoTraditional } from "./TraditionalProblemEditor";
 export const metaEditorOptions: IOptions<typeof MetaEditor> = {
     enableTimeMemoryLimit: true,
     enableFileIo: true,
-    enableRunSamples: true,
 };
 
 export const subtasksEditorOptions: IOptions<typeof SubtasksEditor> = {

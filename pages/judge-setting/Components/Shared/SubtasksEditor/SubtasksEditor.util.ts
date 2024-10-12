@@ -1,6 +1,7 @@
 import { v4 as uuid } from "uuid";
 
 import { E_SubtaskScoringType } from "<Shared>/Enums";
+
 import type { IJudgeInfoProcessor } from "../Type";
 import type { IJudgeInfoWithSubtasks, ISubtasksEditorOptions } from "./SubtasksEditor.type";
 
@@ -75,7 +76,7 @@ export const SubtaskJudgeInfoProcessor: IJudgeInfoProcessor<IJudgeInfoWithSubtas
                     ? (raw.subtasks as any[])
                           .map((x) => x || {})
                           .map((rawSubtask) => ({
-                              uuid: uuid(),
+                              uuid: rawSubtask.uuid || uuid(),
                               scoringType:
                                   rawSubtask.scoringType in E_SubtaskScoringType
                                       ? rawSubtask.scoringType
@@ -101,7 +102,7 @@ export const SubtaskJudgeInfoProcessor: IJudgeInfoProcessor<IJudgeInfoWithSubtas
                                   ? (rawSubtask.testcases as any[])
                                         .map((x) => x || {})
                                         .map((rawTestcase) => ({
-                                            uuid: uuid(),
+                                            uuid: rawSubtask.uuid || uuid(),
                                             inputFile:
                                                 options.enableInputFile && typeof rawTestcase.inputFile === "string"
                                                     ? rawTestcase.inputFile

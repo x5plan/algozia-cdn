@@ -17,36 +17,24 @@ export type IJudgeInfoTraditional = IJudgeInfoWithMeta &
 export type ITraditionalProblemEditorProps = IEditorComponentProps<IJudgeInfoTraditional>;
 
 export const TraditionalProblemEditor: React.FC<ITraditionalProblemEditorProps> = (props) => {
-    const { pending, testData, judgeInfo, onUpdateJudgeInfo } = props;
+    const { testData, judgeInfo, onUpdateJudgeInfo } = props;
 
     return (
         <>
             <MetaEditor
                 judgeInfo={judgeInfo}
                 testData={testData}
-                pending={pending}
                 onUpdateJudgeInfo={onUpdateJudgeInfo}
                 options={metaEditorOptions}
             />
-            <CheckerEditor
-                judgeInfo={judgeInfo}
-                testData={testData}
-                pending={pending}
-                onUpdateJudgeInfo={onUpdateJudgeInfo}
-            />
+            <CheckerEditor judgeInfo={judgeInfo} testData={testData} onUpdateJudgeInfo={onUpdateJudgeInfo} />
             <SubtasksEditor
                 judgeInfo={judgeInfo}
                 testData={testData}
-                pending={pending}
                 onUpdateJudgeInfo={onUpdateJudgeInfo}
                 options={subtasksEditorOptions}
             />
-            <ExtraSourceFilesEditor
-                judgeInfo={judgeInfo}
-                testData={testData}
-                pending={pending}
-                onUpdateJudgeInfo={onUpdateJudgeInfo}
-            />
+            <ExtraSourceFilesEditor judgeInfo={judgeInfo} testData={testData} onUpdateJudgeInfo={onUpdateJudgeInfo} />
         </>
     );
 };

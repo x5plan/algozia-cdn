@@ -2,30 +2,46 @@ import { useState } from "preact/hooks";
 import React from "react";
 import { Grid } from "semantic-ui-react";
 
-import { E_ProblemType } from "../shared/Enums";
+import type { E_ProblemType } from "../shared/Enums";
+import { CodeBox } from "./Components/CodeBox";
 import { JudgeInfoEditor } from "./Components/JudgeSettingEditor";
 import { ProblemTypeEditor } from "./Components/ProblemTypeEditor";
+import { getSharedObject } from "./Utils";
 
 export const App: React.FC = () => {
-    const [judgeInfo, setJudgeInfo] = useState<any>({});
-    const [problemType, setProblemType] = useState<E_ProblemType>(E_ProblemType.Traditional);
+    const { data, onUpdateType, onUpdateJudgeInfo } = getSharedObject();
 
-    const onTypeChange = (type: E_ProblemType) => {
-        setProblemType(type);
-        setJudgeInfo({});
-    };
+    const [judgeInfoRaw, setJudgeInfoRaw] = useState<any>(data.judgeInfo);
+    const [normalizeJudgeInfo, setNormalizeJudgeInfo] = useState<any>(data.judgeInfo);
+    const [problemType, setProblemType] = useState<E_ProblemType>(data.type as E_ProblemType);
 
     return (
-        <Grid.Column width={9}>
-            <ProblemTypeEditor
-                type={problemType}
-                pending={false}
-                hasSubmission={false}
-                onTypeChange={(type) => {
-                    onTypeChange(type);
-                }}
-            />
-            <JudgeInfoEditor problemType={problemType} judgeInfo={judgeInfo} testData={[]} pending={false} />
-        </Grid.Column>
+        <>
+            <Grid.Column width={7}>
+                <CodeBox judgeInfo={normalizeJudgeInfo} />
+            </Grid.Column>
+            <Grid.Column width={9}>
+                <ProblemTypeEditor
+                    type={problemType}
+                    hasSubmission={data.hasSubmissions}
+                    onTypeChange={(type) => {
+                        setProblemType(type);
+                        onUpdateType(type);
+                    }}
+                />
+                <JudgeInfoEditor
+                    problemType={problemType}
+                    judgeInfoRaw={judgeInfoRaw}
+                    testData={data.testDataFileNames}
+                    onUpdateJudgeInfoRaw={(judgeInfoRaw) => {
+                        setJudgeInfoRaw(judgeInfoRaw);
+                    }}
+                    onUpdateNomalizedJudgeInfo={(judgeInfo) => {
+                        setNormalizeJudgeInfo(judgeInfo);
+                        onUpdateJudgeInfo(judgeInfo);
+                    }}
+                />
+            </Grid.Column>
+        </>
     );
 };

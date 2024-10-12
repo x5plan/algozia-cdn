@@ -1,7 +1,8 @@
 import type { Spec } from "immutability-helper";
 import update from "immutability-helper";
-import { useMemo, useRef, useState } from "preact/hooks";
-import type React from "react";
+import { memo } from "preact/compat";
+import { useCallback, useEffect, useMemo, useRef, useState } from "preact/hooks";
+import React from "react";
 import { Button, Dropdown, Form, Input, Menu, Popup, Ref, Table } from "semantic-ui-react";
 import { v4 as uuid } from "uuid";
 
@@ -42,25 +43,58 @@ export interface ISubtaskEditorProps {
     onAddTestcase: (testcaseIndex: number) => void;
 }
 
-export const SubtaskEditor: React.FC<ISubtaskEditorProps> = (props) => {
-    const [testcasesExpanded, setTestcasesExpanded] = useState(props.subtaskCount === 1);
+export const SubtaskEditor: React.FC<ISubtaskEditorProps> = memo((props) => {
+    const {
+        options,
+        testData,
+        subtaskIndex,
+        subtaskCount,
+        subtask,
+        defaultTimeLimit,
+        defaultMemoryLimit,
+        defaultPercentagePoints: defaultSubtaskPercentagePoints,
+        onUpdate,
+        onDelete,
+        onMoveUp,
+        onMoveDown,
+        onAddSubtaskBefore,
+        onAddSubtaskAfter,
+        onUpdateTestcase,
+        onDeleteTestcase,
+        onMoveTestcaseUp,
+        onMoveTestcaseDown,
+        onAddTestcase,
+    } = props;
 
+    const { testcases } = subtask;
+
+    const [testcasesExpanded, setTestcasesExpanded] = useState(subtaskCount === 1);
     const refOptionsButton = useRef(null);
 
-    const sumSpecfiedPercentagePoints = props.subtask.testcases
-        .map((testcase) => testcase.points)
-        .filter((x) => x != null)
-        .reduce((sum, x) => sum + x, 0);
-    const countUnspecfiedPercentagePoints = props.subtask.testcases.filter(
-        (testcase) => testcase.points == null,
-    ).length;
-    const defaultPercentagePoints =
-        (sumSpecfiedPercentagePoints > 100
-            ? 0
-            : Math.round((100 - sumSpecfiedPercentagePoints) / countUnspecfiedPercentagePoints)) || 0;
+    const sumSpecfiedPercentagePoints = useMemo(
+        () =>
+            testcases
+                .map((testcase) => testcase.points)
+                .filter((x) => x != null)
+                .reduce((sum, x) => sum + x, 0),
+        [testcases],
+    );
 
-    function sortTestcases() {
-        const temp: [number[], ITestcase][] = props.subtask.testcases.map((testcase) => [
+    const countUnspecfiedPercentagePoints = useMemo(
+        () => testcases.filter((testcase) => testcase.points == null).length,
+        [testcases],
+    );
+
+    const defaultTestcasePercentagePoints = useMemo(
+        () =>
+            (sumSpecfiedPercentagePoints > 100
+                ? 0
+                : Math.round((100 - sumSpecfiedPercentagePoints) / countUnspecfiedPercentagePoints)) || 0,
+        [countUnspecfiedPercentagePoints, sumSpecfiedPercentagePoints],
+    );
+
+    const sortTestcases = useCallback(() => {
+        const temp: [number[], ITestcase][] = testcases.map((testcase) => [
             (testcase.inputFile || testcase.outputFile).match(/\d+/g).map(parseInt),
             testcase,
         ]);
@@ -70,42 +104,36 @@ export const SubtaskEditor: React.FC<ISubtaskEditorProps> = (props) => {
             return 0;
         });
 
-        props.onUpdate({
+        onUpdate({
             testcases: temp.map(([, testcase]) => testcase),
         });
-    }
+    }, [onUpdate, testcases]);
 
     return (
         <>
             <Menu
                 attached="top"
                 className={
-                    style.menu +
-                    " " +
-                    style.menuHeader +
-                    " " +
-                    style["color_" + randomColorFromUuid(props.subtask.uuid)]
+                    style.menu + " " + style.menuHeader + " " + style["color_" + randomColorFromUuid(subtask.uuid)]
                 }
             >
                 <Menu.Item className={style.itemTitle}>
-                    <strong>
-                        {props.subtaskCount === 1 ? "单个子任务" : <>子任务 &nbsp; #{props.subtaskIndex + 1}</>}
-                    </strong>
-                    <div className={style.subtaskTitleTestcasesCount}>{props.subtask.testcases.length}</div>
+                    <strong>{subtaskCount === 1 ? "单个子任务" : <>子任务 &nbsp; #{subtaskIndex + 1}</>}</strong>
+                    <div className={style.subtaskTitleTestcasesCount}>{testcases.length}</div>
                 </Menu.Item>
                 <Menu.Menu position="right">
-                    {props.options.enableTimeMemoryLimit && (
+                    {options.enableTimeMemoryLimit && (
                         <>
                             <Menu.Item className={style.itemSubtaskTimeLimit}>
                                 <Input
                                     transparent
-                                    placeholder={props.defaultTimeLimit}
-                                    value={props.subtask.timeLimit == null ? "" : props.subtask.timeLimit}
+                                    placeholder={defaultTimeLimit}
+                                    value={subtask.timeLimit == null ? "" : subtask.timeLimit}
                                     icon="clock"
                                     iconPosition="left"
                                     onChange={(e, { value }) =>
                                         (value === "" || (Number.isSafeInteger(Number(value)) && Number(value) >= 0)) &&
-                                        props.onUpdate({ timeLimit: value === "" ? null : Number(value) })
+                                        onUpdate({ timeLimit: value === "" ? null : Number(value) })
                                     }
                                 />
                             </Menu.Item>
@@ -113,32 +141,32 @@ export const SubtaskEditor: React.FC<ISubtaskEditorProps> = (props) => {
                             <Menu.Item className={style.itemSubtaskMemoryLimit}>
                                 <Input
                                     transparent
-                                    placeholder={props.defaultMemoryLimit}
-                                    value={props.subtask.memoryLimit == null ? "" : props.subtask.memoryLimit}
+                                    placeholder={defaultMemoryLimit}
+                                    value={subtask.memoryLimit == null ? "" : subtask.memoryLimit}
                                     icon="microchip"
                                     iconPosition="left"
                                     onChange={(e, { value }) =>
                                         (value === "" || (Number.isSafeInteger(Number(value)) && Number(value) >= 0)) &&
-                                        props.onUpdate({ memoryLimit: value === "" ? null : Number(value) })
+                                        onUpdate({ memoryLimit: value === "" ? null : Number(value) })
                                     }
                                 />
                             </Menu.Item>
                             <Menu.Item className={style.itemLabel}>MiB</Menu.Item>
                         </>
                     )}
-                    {props.subtaskCount > 1 && (
+                    {subtaskCount > 1 && (
                         <Menu.Item className={style.itemSubtaskScore}>
                             <Input
                                 transparent
-                                placeholder={props.defaultPercentagePoints}
-                                value={props.subtask.points == null ? "" : props.subtask.points}
+                                placeholder={defaultSubtaskPercentagePoints}
+                                value={subtask.points == null ? "" : subtask.points}
                                 icon="percent"
                                 onChange={(e, { value }) =>
                                     (value === "" ||
                                         (Number.isSafeInteger(Number(value)) &&
                                             Number(value) >= 0 &&
                                             Number(value) <= 100)) &&
-                                    props.onUpdate({ points: value === "" ? null : Number(value) })
+                                    onUpdate({ points: value === "" ? null : Number(value) })
                                 }
                             />
                         </Menu.Item>
@@ -150,36 +178,34 @@ export const SubtaskEditor: React.FC<ISubtaskEditorProps> = (props) => {
                                 <Dropdown.Item
                                     icon="arrow up"
                                     text="在之前添加子任务"
-                                    onClick={() => props.onAddSubtaskBefore()}
+                                    onClick={() => onAddSubtaskBefore()}
                                 />
                                 <Dropdown.Item
                                     icon="arrow down"
                                     text="在之后添加子任务"
-                                    onClick={() => props.onAddSubtaskAfter()}
+                                    onClick={() => onAddSubtaskAfter()}
                                 />
                                 <Dropdown.Item
                                     icon="plus"
                                     text="添加测试点"
-                                    onClick={() => (
-                                        props.onAddTestcase(props.subtask.testcases.length), setTestcasesExpanded(true)
-                                    )}
+                                    onClick={() => (onAddTestcase(testcases.length), setTestcasesExpanded(true))}
                                 />
                                 <Dropdown.Item
                                     icon="angle double up"
                                     text="上移"
-                                    disabled={props.subtaskIndex === 0}
-                                    onClick={() => props.onMoveUp()}
+                                    disabled={subtaskIndex === 0}
+                                    onClick={() => onMoveUp()}
                                 />
                                 <Dropdown.Item
                                     icon="angle double down"
                                     text="下移"
-                                    disabled={props.subtaskIndex === props.subtaskCount - 1}
-                                    onClick={() => props.onMoveDown()}
+                                    disabled={subtaskIndex === subtaskCount - 1}
+                                    onClick={() => onMoveDown()}
                                 />
                                 <Popup
                                     trigger={<Dropdown.Item icon="delete" text="删除" />}
                                     context={refOptionsButton}
-                                    content={<Button negative content="确认删除" onClick={() => props.onDelete()} />}
+                                    content={<Button negative content="确认删除" onClick={() => onDelete()} />}
                                     on="click"
                                     position="bottom center"
                                 />
@@ -191,7 +217,7 @@ export const SubtaskEditor: React.FC<ISubtaskEditorProps> = (props) => {
             <Menu attached className={style.menu}>
                 <Dropdown
                     item
-                    value={props.subtask.scoringType}
+                    value={subtask.scoringType}
                     className={style.itemScoringTypeDropdown}
                     options={Object.values(E_SubtaskScoringType).map((type) => ({
                         key: type,
@@ -203,10 +229,10 @@ export const SubtaskEditor: React.FC<ISubtaskEditorProps> = (props) => {
                                   ? "各测试点分数取最小值"
                                   : "各测试点分数按百分比相乘",
                     }))}
-                    onChange={(e, { value }) => props.onUpdate({ scoringType: value as E_SubtaskScoringType })}
+                    onChange={(e, { value }) => onUpdate({ scoringType: value as E_SubtaskScoringType })}
                 />
                 <Menu.Menu position="right">
-                    {props.subtask.testcases.length === 0 ? (
+                    {testcases.length === 0 ? (
                         <Menu.Item icon="circle outline" content="暂无测试点" />
                     ) : (
                         <Menu.Item
@@ -219,30 +245,26 @@ export const SubtaskEditor: React.FC<ISubtaskEditorProps> = (props) => {
                 </Menu.Menu>
             </Menu>
             {testcasesExpanded &&
-                props.subtask.testcases.map((testcase, testcaseIndex) => (
+                testcases.map((testcase, testcaseIndex) => (
                     <SubtaskEditorTastcaseItem
-                        options={props.options}
+                        options={options}
                         key={testcase.uuid}
-                        testData={props.testData}
+                        testData={testData}
                         testcaseIndex={testcaseIndex}
-                        testcaseCount={props.subtask.testcases.length}
+                        testcaseCount={testcases.length}
                         testcase={testcase}
-                        defaultPercentagePoints={defaultPercentagePoints}
-                        defaultTimeLimit={
-                            props.subtask.timeLimit != null ? props.subtask.timeLimit : props.defaultTimeLimit
-                        }
-                        defaultMemoryLimit={
-                            props.subtask.memoryLimit != null ? props.subtask.memoryLimit : props.defaultMemoryLimit
-                        }
-                        onUpdate={(updateInfo) => props.onUpdateTestcase(testcaseIndex, updateInfo)}
-                        onDelete={() => props.onDeleteTestcase(testcaseIndex)}
-                        onMoveUp={() => props.onMoveTestcaseUp(testcaseIndex)}
-                        onMoveDown={() => props.onMoveTestcaseDown(testcaseIndex)}
-                        onAddTestcaseBefore={() => props.onAddTestcase(testcaseIndex)}
-                        onAddTestcaseAfter={() => props.onAddTestcase(testcaseIndex + 1)}
+                        defaultPercentagePoints={defaultTestcasePercentagePoints}
+                        defaultTimeLimit={subtask.timeLimit != null ? subtask.timeLimit : defaultTimeLimit}
+                        defaultMemoryLimit={subtask.memoryLimit != null ? subtask.memoryLimit : defaultMemoryLimit}
+                        onUpdate={(updateInfo) => onUpdateTestcase(testcaseIndex, updateInfo)}
+                        onDelete={() => onDeleteTestcase(testcaseIndex)}
+                        onMoveUp={() => onMoveTestcaseUp(testcaseIndex)}
+                        onMoveDown={() => onMoveTestcaseDown(testcaseIndex)}
+                        onAddTestcaseBefore={() => onAddTestcase(testcaseIndex)}
+                        onAddTestcaseAfter={() => onAddTestcase(testcaseIndex + 1)}
                     />
                 ))}
-            {props.subtaskCount > 1 && (
+            {subtaskCount > 1 && (
                 <>
                     <Menu attached="bottom" className={style.menu + " " + style.menuFooter}>
                         <Menu.Item>依赖子任务</Menu.Item>
@@ -252,36 +274,36 @@ export const SubtaskEditor: React.FC<ISubtaskEditorProps> = (props) => {
                             multiple
                             search
                             selection
-                            value={props.subtask.dependencies}
-                            options={[...Array(props.subtaskCount).keys()]
-                                .filter((i) => i != props.subtaskIndex)
+                            value={subtask.dependencies}
+                            options={[...Array(subtaskCount).keys()]
+                                .filter((i) => i != subtaskIndex)
                                 .map((i) => ({
                                     key: i,
                                     value: i,
                                     text: i + 1,
                                 }))}
-                            onChange={(e, { value }) => props.onUpdate({ dependencies: value as number[] })}
+                            onChange={(e, { value }) => onUpdate({ dependencies: value as number[] })}
                         />
                     </Menu>
                 </>
             )}
         </>
     );
-};
+});
 
 type SubtasksEditorProps = IEditorComponentProps<IJudgeInfoWithSubtasks, ISubtasksEditorOptions>;
 
 export const SubtasksEditor: React.FC<SubtasksEditorProps> = (props) => {
-    const judgeInfo = props.judgeInfo;
+    const { options, testData, judgeInfo, onUpdateJudgeInfo } = props;
 
     const autoTestcases = useMemo(() => {
         if (
-            props.options.enableInputFile === true ||
-            (props.options.enableInputFile === "optional" && props.options.enableOutputFile !== true)
+            options.enableInputFile === true ||
+            (options.enableInputFile === "optional" && options.enableOutputFile !== true)
         ) {
-            return detectTestcasesByMatchingInputToOutput(props.testData, props.options.enableOutputFile !== true);
-        } else return detectTestcasesByMatchingOutputToInput(props.testData, true);
-    }, [props.options.enableInputFile, props.options.enableOutputFile, props.testData]);
+            return detectTestcasesByMatchingInputToOutput(testData, options.enableOutputFile !== true);
+        } else return detectTestcasesByMatchingOutputToInput(testData, true);
+    }, [options.enableInputFile, options.enableOutputFile, testData]);
 
     // Prevent losing subtasks by toggling "auto detect testcases"
     const [subtasksBackup, setSubtasksBackup] = useState(
@@ -304,7 +326,7 @@ export const SubtasksEditor: React.FC<SubtasksEditorProps> = (props) => {
             : Math.round((100 - sumSpecfiedPercentagePoints) / countUnspecfiedPercentagePoints)) || 0;
 
     function updateSubtasks($spec: Spec<ISubtask[]>) {
-        props.onUpdateJudgeInfo({ subtasks: update(judgeInfo.subtasks, $spec) });
+        onUpdateJudgeInfo({ subtasks: update(judgeInfo.subtasks, $spec) });
     }
 
     function onUpdateSubtask(subtaskIndex: number, updateInfo: Partial<ISubtask>) {
@@ -460,7 +482,7 @@ export const SubtasksEditor: React.FC<SubtasksEditorProps> = (props) => {
                         width={16}
                         label={
                             <label>
-                                {props.options.enableOutputFile ? (
+                                {options.enableOutputFile ? (
                                     <>
                                         由数据文件自动检测测试点（自动匹配 <code>.in</code> 与 <code>.out</code> 文件）
                                     </>
@@ -475,9 +497,9 @@ export const SubtasksEditor: React.FC<SubtasksEditorProps> = (props) => {
                         onChange={(e, { checked }) => {
                             if (checked) {
                                 setSubtasksBackup(judgeInfo.subtasks);
-                                props.onUpdateJudgeInfo({ subtasks: null });
+                                onUpdateJudgeInfo({ subtasks: null });
                             } else {
-                                props.onUpdateJudgeInfo({ subtasks: subtasksBackup });
+                                onUpdateJudgeInfo({ subtasks: subtasksBackup });
                             }
                         }}
                     />
@@ -488,8 +510,8 @@ export const SubtasksEditor: React.FC<SubtasksEditorProps> = (props) => {
                     {judgeInfo.subtasks.map((subtask, index) => (
                         <SubtaskEditor
                             key={subtask.uuid}
-                            options={props.options}
-                            testData={props.testData}
+                            options={options}
+                            testData={testData}
                             subtaskIndex={index}
                             subtaskCount={judgeInfo.subtasks.length}
                             subtask={subtask}
@@ -517,15 +539,11 @@ export const SubtasksEditor: React.FC<SubtasksEditorProps> = (props) => {
                     <Table.Header>
                         <Table.Row>
                             <Table.HeaderCell width={2}>#</Table.HeaderCell>
-                            {props.options.enableInputFile && (
-                                <Table.HeaderCell width={props.options.enableOutputFile ? 7 : 14}>
-                                    输入文件
-                                </Table.HeaderCell>
+                            {options.enableInputFile && (
+                                <Table.HeaderCell width={options.enableOutputFile ? 7 : 14}>输入文件</Table.HeaderCell>
                             )}
-                            {props.options.enableOutputFile && (
-                                <Table.HeaderCell width={props.options.enableInputFile ? 7 : 14}>
-                                    输出文件
-                                </Table.HeaderCell>
+                            {options.enableOutputFile && (
+                                <Table.HeaderCell width={options.enableInputFile ? 7 : 14}>输出文件</Table.HeaderCell>
                             )}
                         </Table.Row>
                     </Table.Header>
@@ -535,7 +553,7 @@ export const SubtasksEditor: React.FC<SubtasksEditorProps> = (props) => {
                                 <Table.Row key={i}>
                                     <Table.Cell>{i + 1}</Table.Cell>
                                     <Table.Cell>{testcase.inputFile}</Table.Cell>
-                                    {props.options.enableOutputFile && <Table.Cell>{testcase.outputFile}</Table.Cell>}
+                                    {options.enableOutputFile && <Table.Cell>{testcase.outputFile}</Table.Cell>}
                                 </Table.Row>
                             ))
                         ) : (

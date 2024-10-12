@@ -14,27 +14,20 @@ export type IJudgeInfoSubmitAnswer = IJudgeInfoWithMeta & IJudgeInfoWithSubtasks
 export type ISubmitAnswerProblemEditorProps = IEditorComponentProps<IJudgeInfoSubmitAnswer>;
 
 export const SubmitAnswerProblemEditor: React.FC<ISubmitAnswerProblemEditorProps> = (props) => {
-    const { pending, testData, judgeInfo, onUpdateJudgeInfo } = props;
+    const { testData, judgeInfo, onUpdateJudgeInfo } = props;
 
     return (
         <>
             <MetaEditor
                 judgeInfo={judgeInfo}
                 testData={testData}
-                pending={pending}
                 onUpdateJudgeInfo={onUpdateJudgeInfo}
                 options={metaEditorOptions}
             />
-            <CheckerEditor
-                judgeInfo={judgeInfo}
-                testData={testData}
-                pending={pending}
-                onUpdateJudgeInfo={onUpdateJudgeInfo}
-            />
+            <CheckerEditor judgeInfo={judgeInfo} testData={testData} onUpdateJudgeInfo={onUpdateJudgeInfo} />
             <SubtasksEditor
                 judgeInfo={judgeInfo}
                 testData={testData}
-                pending={pending}
                 onUpdateJudgeInfo={onUpdateJudgeInfo}
                 options={subtasksEditorOptions}
             />
