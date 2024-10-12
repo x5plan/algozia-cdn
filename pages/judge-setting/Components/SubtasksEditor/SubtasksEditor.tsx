@@ -6,12 +6,15 @@ import { Button, Dropdown, Form, Input, Menu, Popup, Ref, Table } from "semantic
 import { v4 as uuid } from "uuid";
 
 import { E_SubtaskScoringType } from "../../../shared/Enums";
-import type { IEditorComponentProps } from "../common.type";
-import { detectTestcasesByMatchingInputToOutput, detectTestcasesByMatchingOutputToInput } from "../detect-testcases";
+import type { IEditorComponentProps } from "../Type";
 import { SubtaskEditorTastcaseItem } from "./SubtaskEditorTastcaseItem";
 import style from "./SubtasksEditor.module.less";
 import type { IJudgeInfoWithSubtasks, ISubtask, ISubtasksEditorOptions, ITestcase } from "./SubtasksEditor.type";
-import { randomColorFromUuid } from "./SubtasksEditor.util";
+import {
+    detectTestcasesByMatchingInputToOutput,
+    detectTestcasesByMatchingOutputToInput,
+    randomColorFromUuid,
+} from "./SubtasksEditor.util";
 
 export interface ISubtaskEditorProps {
     options: ISubtasksEditorOptions;

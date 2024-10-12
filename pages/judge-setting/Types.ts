@@ -1,22 +1,13 @@
-import type React from "react";
-
-import type { CE_ProblemType } from "../shared/Enums";
-import type { IEditorComponentProps } from "./Editors/Types";
-import type { IJudgeInfoProcessor } from "./JudgeInfoProcessors/Types";
-
-export type IOptions<TEditorComponentType> =
-    TEditorComponentType extends React.FunctionComponent<{ options?: infer T }> ? T : never;
-
-export type IProblemTypeEditorComponent = React.FC<IEditorComponentProps<unknown>> & IJudgeInfoProcessor<unknown>;
+import type { E_ProblemType } from "../shared/Enums";
 
 interface IChangeTypeMessageData {
     type: "ChangeType";
-    problemType: CE_ProblemType;
+    problemType: E_ProblemType;
 }
 
 interface IInitializeMessageData {
     type: "Initialize";
-    problemType: CE_ProblemType;
+    problemType: E_ProblemType;
     judgeInfo: any;
     testData: string[];
 }

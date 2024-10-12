@@ -8,24 +8,23 @@ import {
     filterValidCompileAndRunOptions,
     getDefaultCompileAndRunOptions,
 } from "../../shared/CodeLanguageUtils";
-import { E_CodeLanguage } from "../../shared/Enums";
+import type { E_CodeLanguage } from "../../shared/Enums";
 import style from "../Components/CheckerEditor/CheckerEditor.module.less";
-import { CodeLanguageAndOptions } from "../Components/CheckerEditor/CodeLanguageAndOptions";
-import type { IJudgeInfoWithExtraSourceFiles } from "../Components/ExtraSourceFilesEditor";
-import { ExtraSourceFilesEditor } from "../Components/ExtraSourceFilesEditor";
-import type { IJudgeInfoWithMeta } from "../Components/MetaEditor";
-import { MetaEditor } from "../Components/MetaEditor";
-import type { IJudgeInfoWithSubtasks } from "../Components/SubtasksEditor";
-import { SubtasksEditor } from "../Components/SubtasksEditor";
-import { TestDataFileSelector } from "../Components/TestDataFileSelector";
 import { ExtraSourceFilesJudgeInfoProcessor } from "../JudgeInfoProcessors/ExtraSourceFiles";
 import { MetaJudgeInfoProcessor } from "../JudgeInfoProcessors/Meta";
 import { SubtaskJudgeInfoProcessor } from "../JudgeInfoProcessors/Subtasks";
 import type { IJudgeInfoProcessor } from "../JudgeInfoProcessors/Types";
-import type { IOptions } from "../Types";
-import type { IEditorComponentProps } from "./Types";
+import { CodeLanguageAndOptions } from "./CheckerEditor/CodeLanguageAndOptions";
+import type { IJudgeInfoWithExtraSourceFiles } from "./ExtraSourceFilesEditor";
+import { ExtraSourceFilesEditor } from "./ExtraSourceFilesEditor";
+import type { IJudgeInfoWithMeta } from "./MetaEditor";
+import { MetaEditor } from "./MetaEditor";
+import type { IJudgeInfoWithSubtasks } from "./SubtasksEditor";
+import { SubtasksEditor } from "./SubtasksEditor";
+import { TestDataFileSelector } from "./TestDataFileSelector";
+import type { IEditorComponentProps, IOptions } from "./Type";
 
-interface IInteractorConfig {
+export interface IInteractorConfig {
     interface: InteractorInterface;
     sharedMemorySize?: number;
     language: E_CodeLanguage;
@@ -39,20 +38,20 @@ interface IJudgeInfoWithInteractor {
     interactor?: IInteractorConfig;
 }
 
-type IJudgeInfoInteraction = IJudgeInfoWithMeta &
+export type IJudgeInfoInteraction = IJudgeInfoWithMeta &
     IJudgeInfoWithSubtasks &
     IJudgeInfoWithInteractor &
     IJudgeInfoWithExtraSourceFiles;
 
 type InteractorInterface = "stdio" | "shm";
 
-const metaEditorOptions: IOptions<typeof MetaEditor> = {
+export const metaEditorOptions: IOptions<typeof MetaEditor> = {
     enableTimeMemoryLimit: true,
     enableFileIo: false,
     enableRunSamples: true,
 };
 
-const subtasksEditorOptions: IOptions<typeof SubtasksEditor> = {
+export const subtasksEditorOptions: IOptions<typeof SubtasksEditor> = {
     enableTimeMemoryLimit: true,
     enableInputFile: true,
     enableOutputFile: false,
@@ -61,58 +60,12 @@ const subtasksEditorOptions: IOptions<typeof SubtasksEditor> = {
 
 const interactorInterfaces: InteractorInterface[] = ["stdio", "shm"];
 
-const judgeInfoProcessor: IJudgeInfoProcessor<IJudgeInfoInteraction> = {
-    parseJudgeInfo(raw, testData) {
-        return Object.assign(
-            {},
-            MetaJudgeInfoProcessor.parseJudgeInfo(raw, testData, metaEditorOptions),
-            {
-                interactor: parseInteractorConfig(raw.interactor || {}, testData),
-            },
-            SubtaskJudgeInfoProcessor.parseJudgeInfo(raw, testData, subtasksEditorOptions),
-            ExtraSourceFilesJudgeInfoProcessor.parseJudgeInfo(raw, testData),
-        );
-    },
-    normalizeJudgeInfo(judgeInfo) {
-        MetaJudgeInfoProcessor.normalizeJudgeInfo(judgeInfo, metaEditorOptions);
-        if (!judgeInfo.interactor.sharedMemorySize) delete judgeInfo.interactor.sharedMemorySize;
-        if (judgeInfo.interactor.timeLimit == null) delete judgeInfo.interactor.timeLimit;
-        if (judgeInfo.interactor.memoryLimit == null) delete judgeInfo.interactor.memoryLimit;
-        SubtaskJudgeInfoProcessor.normalizeJudgeInfo(judgeInfo, subtasksEditorOptions);
-        ExtraSourceFilesJudgeInfoProcessor.normalizeJudgeInfo(judgeInfo);
-    },
-};
-
-type InteractionProblemEditorProps = IEditorComponentProps<IJudgeInfoInteraction>;
+export type InteractionProblemEditorProps = IEditorComponentProps<IJudgeInfoInteraction>;
 
 export const InteractionProblemEditor: React.FC<InteractionProblemEditorProps> = (props) => {
-    const { pending, testData, rawJudgeInfo, onJudgeInfoUpdated } = props;
-
-    const [judgeInfo, setJudgeInfo] = useState<IJudgeInfoInteraction>(
-        judgeInfoProcessor.parseJudgeInfo(rawJudgeInfo, testData),
-    );
+    const { pending, testData, judgeInfo, onUpdateJudgeInfo } = props;
 
     const interactor = judgeInfo.interactor;
-
-    const onUpdateJudgeInfo = useCallback(
-        (
-            deltaOrReducer:
-                | Partial<IJudgeInfoInteraction>
-                | ((judgeInfo: IJudgeInfoInteraction) => Partial<IJudgeInfoInteraction>),
-        ) => {
-            setJudgeInfo((prev) => {
-                const delta = typeof deltaOrReducer === "function" ? deltaOrReducer(prev) : deltaOrReducer;
-                const next = { ...prev, ...delta };
-
-                const obj = cloneDeep(next);
-                judgeInfoProcessor.normalizeJudgeInfo(obj);
-                onJudgeInfoUpdated(obj);
-
-                return next;
-            });
-        },
-        [onJudgeInfoUpdated],
-    );
 
     const onUpdateInteractor = useCallback(
         (delta: Partial<IInteractorConfig>) => {
@@ -248,34 +201,6 @@ export const InteractionProblemEditor: React.FC<InteractionProblemEditorProps> =
         </>
     );
 };
-
-function parseInteractorConfig(interactor: Partial<IInteractorConfig>, testData: string[]): IInteractorConfig {
-    const language = Object.values(E_CodeLanguage).includes(interactor.language)
-        ? interactor.language
-        : Object.values(E_CodeLanguage)[0];
-    return {
-        interface: ["stdio", "shm"].includes(interactor.interface) ? interactor.interface : "stdio",
-        sharedMemorySize:
-            interactor.interface !== "shm"
-                ? null
-                : Number.isSafeInteger(interactor.sharedMemorySize) &&
-                    interactor.sharedMemorySize >= 4 &&
-                    interactor.sharedMemorySize <= 128
-                  ? interactor.sharedMemorySize
-                  : 4,
-        language: language,
-        compileAndRunOptions:
-            language === interactor.language
-                ? filterValidCompileAndRunOptions(language, interactor.compileAndRunOptions)
-                : getDefaultCompileAndRunOptions(language),
-        filename:
-            interactor.filename && typeof interactor.filename === "string"
-                ? interactor.filename
-                : testData.find((file) => checkCodeFileExtension(language, file)) || testData[0] || "",
-        timeLimit: Number.isSafeInteger(interactor.timeLimit) ? interactor.timeLimit : null,
-        memoryLimit: Number.isSafeInteger(interactor.memoryLimit) ? interactor.memoryLimit : null,
-    };
-}
 
 function normalizeSharedMemorySize(x: number) {
     x = Math.round(x);

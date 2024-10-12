@@ -6,7 +6,7 @@ import { v4 as uuid } from "uuid";
 
 import { CodeLanguageString } from "../../../shared/CodeLanguageString";
 import { E_CodeLanguage } from "../../../shared/Enums";
-import type { IEditorComponentProps } from "../common.type";
+import type { IEditorComponentProps } from "../Type";
 import { TestDataFileSelector } from "../TestDataFileSelector";
 import style from "./ExtraSourceFilesEditor.module.less";
 import type { IJudgeInfoWithExtraSourceFiles } from "./ExtraSourceFilesEditor.type";

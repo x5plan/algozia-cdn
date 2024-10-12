@@ -1,4 +1,4 @@
-export const enum CE_ProblemType {
+export enum E_ProblemType {
     Traditional = "traditional",
     SubmitAnswer = "submit-answer",
     Interaction = "interaction",

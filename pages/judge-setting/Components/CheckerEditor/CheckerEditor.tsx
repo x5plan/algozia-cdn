@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { Form, Header, Input, Menu, Segment } from "semantic-ui-react";
 
-import type { IEditorComponentProps } from "../common.type";
+import type { IEditorComponentProps } from "../Type";
 import { TestDataFileSelector } from "../TestDataFileSelector";
 import style from "./CheckerEditor.module.less";
 import type { ICheckerConfig, ICheckerType, IJudgeInfoWithChecker } from "./CheckerEditor.type";

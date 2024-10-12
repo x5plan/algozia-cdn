@@ -3,7 +3,7 @@ import minifyHtml from "vite-plugin-html-minifier-terser";
 import preact from "@preact/preset-vite";
 import pages from "./configs/pages.json";
 
-const pagesConfig = Object.fromEntries(pages.map((page) => [page, `/${page}.html`]));
+const pagesConfig = Object.fromEntries(pages.map((page) => [page, `/${page}/main.tsx`]));
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -24,19 +24,21 @@ export default defineConfig({
         }),
     ],
     root: "./pages",
-    base: "/pages",
+    base: "./",
     server: {
         port: 5173,
         cors: true,
         strictPort: true,
     },
     build: {
+        minify: false,
+        manifest: true,
         outDir: "../dist/pages",
         emptyOutDir: true,
         rollupOptions: {
             input: pagesConfig,
             output: {
-                entryFileNames: "assets/[name].[hash].js",
+                entryFileNames: "[name].[hash].js",
                 chunkFileNames: "assets/[name].[hash].js",
                 assetFileNames: "assets/[name].[hash][extname]",
             },

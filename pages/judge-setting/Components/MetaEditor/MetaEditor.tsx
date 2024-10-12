@@ -1,7 +1,7 @@
 import React from "react";
 import { Form, Input } from "semantic-ui-react";
 
-import type { IEditorComponentProps } from "../common.type";
+import type { IEditorComponentProps } from "../Type";
 import style from "./MetaEditor.module.less";
 import type { IJudgeInfoWithMeta, IMetaEditorOptions } from "./MetaEditor.type";
 
