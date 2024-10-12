@@ -16,7 +16,7 @@ export const App: React.FC = () => {
     const [problemType, setProblemType] = useState<E_ProblemType>(data.type as E_ProblemType);
 
     return (
-        <>
+        <Grid.Row>
             <Grid.Column width={7}>
                 <CodeBox judgeInfo={normalizeJudgeInfo} />
             </Grid.Column>
@@ -42,6 +42,6 @@ export const App: React.FC = () => {
                     }}
                 />
             </Grid.Column>
-        </>
+        </Grid.Row>
     );
 };
