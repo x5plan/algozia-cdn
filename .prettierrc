@@ -10,7 +10,9 @@
     "overrides": [
         {
             "files": [
-                "*.json"
+                "*.json",
+                "*.yaml",
+                "*.yml"
             ],
             "options": {
                 "tabWidth": 2
