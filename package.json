@@ -12,7 +12,8 @@
     "copy:assets": "node ./build-tools/copy-assets.js",
     "copy:fonts": "node ./build-tools/copy-fonts.js",
     "copy:all": "run-s copy:packages copy:assets copy:fonts",
-    "server:bundle": "node ./build-tools/server.js",
+    "server": "node ./build-tools/server.js",
+    "vite": "vite",
     "lint": "eslint \"pages/**/*.{js,cjs,mjs,ts,mts,tsx}\"",
     "lint:fix": "eslint \"pages/**/*.{js,cjs,mjs,ts,mts,tsx}\" --fix",
     "format": "prettier --ignore-path .gitignore --write \"**/*.{js,cjs,mjs,ts,mts,tsx}\""

@@ -1,5 +1,5 @@
 import { dump } from "js-yaml";
-import { useState } from "preact/hooks";
+import { useMemo, useRef, useState } from "preact/hooks";
 import React from "react";
 import { Segment } from "semantic-ui-react";
 import { v4 as uuid } from "uuid";
@@ -10,33 +10,18 @@ interface ICodeBoxProps {
 
 export const CodeBox: React.FC<ICodeBoxProps> = (props) => {
     const { judgeInfo } = props;
-    const latestRenderIdRef = React.useRef<string>("");
-    const debounceRef = React.useRef<number | null>(null);
+    const latestRenderIdRef = useRef<string>("");
     const [html, setHtml] = useState<string>("");
+    const judgeInfoYaml = useMemo(() => dumpJudgeInfo(judgeInfo), [judgeInfo]);
 
     React.useEffect(() => {
-        if (debounceRef.current) {
-            window.clearTimeout(debounceRef.current);
-        }
         latestRenderIdRef.current = uuid();
-        console.log("highlighting");
-
-        debounceRef.current = window.setTimeout(() => {
-            debounceRef.current = null;
-
-            highlightAsync(dumpJudgeInfo(judgeInfo), latestRenderIdRef.current).then(({ id, code }) => {
-                if (id === latestRenderIdRef.current) {
-                    setHtml(code);
-                }
-            });
-        }, 100);
-
-        return () => {
-            if (debounceRef.current) {
-                window.clearTimeout(debounceRef.current);
+        highlightAsync(judgeInfoYaml, latestRenderIdRef.current).then(({ id, code }) => {
+            if (id === latestRenderIdRef.current) {
+                setHtml(code);
             }
-        };
-    }, [judgeInfo]);
+        });
+    }, [judgeInfoYaml]);
 
     return (
         <>

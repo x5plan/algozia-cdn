@@ -16,7 +16,7 @@ export function parseCheckerConfig(checker: Partial<ICheckerConfig>, testData: s
         return {
             // default
             type: "lines",
-            caseSensitive: false,
+            caseSensitive: true,
         };
     }
 
@@ -29,7 +29,7 @@ export function parseCheckerConfig(checker: Partial<ICheckerConfig>, testData: s
                 precision: Number.isSafeInteger(checker.precision) && checker.precision > 0 ? checker.precision : 4,
             };
         case "lines":
-            return { type: "lines", caseSensitive: !!checker.caseSensitive };
+            return { type: "lines", caseSensitive: checker.caseSensitive ?? true };
         case "binary":
             return { type: "binary" };
         case "custom":

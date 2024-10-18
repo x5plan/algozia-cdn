@@ -3,15 +3,14 @@ interface IHighlightUtil {
 }
 
 interface IPageSharedObject {
-    readonly data: {
-        readonly type: string;
-        readonly judgeInfo: any;
-        readonly hasSubmissions: boolean;
-        readonly testDataFileNames: string[];
-    };
-
-    readonly onUpdateType: (type: string) => void;
-    readonly onUpdateJudgeInfo: (judgeInfo: any) => void;
+    readonly title: string;
+    readonly problemUrl: string;
+    readonly postUrl: string;
+    readonly error?: string;
+    readonly type: string;
+    readonly info: any;
+    readonly hasSubmissions: boolean;
+    readonly testDataFileNames: string[];
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
