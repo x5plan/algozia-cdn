@@ -41,17 +41,6 @@ export const JudgeInfoEditor: React.FC<IJudgeInfoEditorProps> = (props) => {
 
     const [judgeInfo, setJudgeInfo] = useState(judgeInfoProcesser.parseJudgeInfo(judgeInfoRaw, testData));
 
-    const onJudgeInfoUpdated = useCallback(
-        (deltaOrReducer: Partial<unknown> | ((judgeInfo: unknown) => Partial<unknown>)) => {
-            const newJudgeInfo = {
-                ...judgeInfo,
-                ...(typeof deltaOrReducer === "function" ? deltaOrReducer(judgeInfo) : deltaOrReducer),
-            };
-            setJudgeInfo(newJudgeInfo);
-        },
-        [judgeInfo],
-    );
-
     React.useEffect(() => {
         const cloned = cloneDeep(judgeInfo);
         judgeInfoProcesser.normalizeJudgeInfo(cloned);
@@ -60,6 +49,15 @@ export const JudgeInfoEditor: React.FC<IJudgeInfoEditorProps> = (props) => {
     }, [judgeInfo]);
 
     return (
-        <JudgeInfoEditorComponent judgeInfo={judgeInfo} testData={testData} onUpdateJudgeInfo={onJudgeInfoUpdated} />
+        <JudgeInfoEditorComponent
+            judgeInfo={judgeInfo}
+            testData={testData}
+            onUpdateJudgeInfo={(deltaOrReducer) =>
+                setJudgeInfo((judgeInfo) => ({
+                    ...judgeInfo,
+                    ...(typeof deltaOrReducer === "function" ? deltaOrReducer(judgeInfo) : deltaOrReducer),
+                }))
+            }
+        />
     );
 };

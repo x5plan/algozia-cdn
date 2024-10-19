@@ -2,12 +2,13 @@ import { useCallback, useRef } from "preact/compat";
 import React from "react";
 import { Form, Header, Input, Menu, Segment } from "semantic-ui-react";
 
+import { CodeLanguageAndOptions } from "<Shared>/CodeLanguageAndOptions";
+
 import { TestDataFileSelector } from "../TestDataFileSelector";
 import type { IEditorComponentProps } from "../Type";
 import style from "./CheckerEditor.module.less";
 import type { ICheckerConfig, ICheckerType, IJudgeInfoWithChecker } from "./CheckerEditor.type";
 import { CHECKER_TYPES, CUSTOM_CHECKER_INTERFACES, parseCheckerConfig } from "./CheckerEditor.util";
-import { CodeLanguageAndOptions } from "./CodeLanguageAndOptions";
 
 export type ICheckerEditorProps = IEditorComponentProps<IJudgeInfoWithChecker>;
 
