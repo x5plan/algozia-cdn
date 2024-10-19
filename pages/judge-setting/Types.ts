@@ -26,3 +26,14 @@ export type IJudgeSettingEditorMessageData =
     | IInitializeMessageData
     | ISubmitJudgeInfoMessageData
     | IUpdateJudgeInfoMessageData;
+
+export interface IPageSharedObject {
+    readonly title: string;
+    readonly problemUrl: string;
+    readonly postUrl: string;
+    readonly error?: string;
+    readonly type: string;
+    readonly info: any;
+    readonly hasSubmissions: boolean;
+    readonly testDataFileNames: string[];
+}

@@ -2,9 +2,9 @@ import { useCallback } from "preact/hooks";
 import type React from "react";
 import { Form, Header, Input, Menu, Segment } from "semantic-ui-react";
 
+import { CodeLanguageAndOptions } from "../../../shared/CodeLanguageAndOptions";
 import type { E_CodeLanguage } from "../../../shared/Enums";
 import style from "../Shared/CheckerEditor/CheckerEditor.module.less";
-import { CodeLanguageAndOptions } from "../Shared/CheckerEditor/CodeLanguageAndOptions";
 import type { IJudgeInfoWithExtraSourceFiles } from "../Shared/ExtraSourceFilesEditor";
 import { ExtraSourceFilesEditor } from "../Shared/ExtraSourceFilesEditor";
 import type { IJudgeInfoWithMeta } from "../Shared/MetaEditor";
@@ -47,9 +47,11 @@ export const InteractionProblemEditor: React.FC<InteractionProblemEditorProps> =
 
     const onUpdateInteractor = useCallback(
         (delta: Partial<IInteractorConfig>) => {
-            onUpdateJudgeInfo(({ interactor }) => ({
-                interactor: Object.assign({}, interactor, delta),
-            }));
+            onUpdateJudgeInfo(({ interactor }) => {
+                return {
+                    interactor: { ...interactor, ...delta },
+                };
+            });
         },
         [onUpdateJudgeInfo],
     );
@@ -99,24 +101,6 @@ export const InteractionProblemEditor: React.FC<InteractionProblemEditorProps> =
                         />
                         <div className={style.compileAndRunOptions}>
                             <CodeLanguageAndOptions
-                                elementAfterLanguageSelect={
-                                    <Form.Field style={{ visibility: interactor.interface === "shm" ? "" : "hidden" }}>
-                                        <label>共享内存大小</label>
-                                        <Input
-                                            value={normalizeSharedMemorySize(interactor.sharedMemorySize)}
-                                            type="number"
-                                            min={4}
-                                            max={128}
-                                            label="MiB"
-                                            labelPosition="right"
-                                            onChange={(e, { value }) =>
-                                                onUpdateInteractor({
-                                                    sharedMemorySize: normalizeSharedMemorySize(Number(value)),
-                                                })
-                                            }
-                                        />
-                                    </Form.Field>
-                                }
                                 language={interactor.language}
                                 compileAndRunOptions={interactor.compileAndRunOptions}
                                 onUpdateLanguage={(newLanguage) => onUpdateInteractor({ language: newLanguage })}
@@ -124,6 +108,22 @@ export const InteractionProblemEditor: React.FC<InteractionProblemEditorProps> =
                                     onUpdateInteractor({ compileAndRunOptions: compileAndRunOptions })
                                 }
                             />
+                            <Form.Field style={{ visibility: interactor.interface === "shm" ? "" : "hidden" }}>
+                                <label>共享内存大小</label>
+                                <Input
+                                    value={normalizeSharedMemorySize(interactor.sharedMemorySize)}
+                                    type="number"
+                                    min={4}
+                                    max={128}
+                                    label="MiB"
+                                    labelPosition="right"
+                                    onChange={(e, { value }) =>
+                                        onUpdateInteractor({
+                                            sharedMemorySize: normalizeSharedMemorySize(Number(value)),
+                                        })
+                                    }
+                                />
+                            </Form.Field>
                         </div>
                         <Form.Group>
                             <Form.Field width={8}>
