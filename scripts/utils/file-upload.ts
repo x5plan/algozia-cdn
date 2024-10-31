@@ -6,9 +6,9 @@ interface ISignedUploadRequest {
     uuid: string;
     method: "POST" | "PUT";
     url: string;
-    size: number;
     extraFormData?: any;
     fileFieldName?: string;
+    token: string;
 }
 
 interface ISignedUploadRequestResponse {
@@ -72,7 +72,7 @@ namespace FileUploadUtil {
             data: JSON.stringify({
                 filename: file.name,
                 type,
-                uploadRequest,
+                token: uploadRequest.token,
             }),
             processData: false,
             dataType: "json",
